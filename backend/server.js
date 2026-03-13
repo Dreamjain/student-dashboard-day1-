@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const studentRoutes = require("./routes/studentRoutes");
+const attendanceRoutes = require("./routes/attendanceRoutes");
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/students", studentRoutes);
+app.use("/attendance", attendanceRoutes);
 
 const PORT = 5000;
 
