@@ -3,10 +3,12 @@ const router = express.Router();
 
 const {
   markAttendance,
-  getAttendance
+  getAttendance,
+  getStudentAttendance
 } = require("../controllers/attendanceController");
 
 router.post("/", markAttendance);
 router.get("/", getAttendance);
+router.get("/student/:id", getStudentAttendance);
 
 module.exports = router;
