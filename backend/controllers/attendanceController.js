@@ -46,8 +46,49 @@ const getAttendance = async (req, res) => {
   }
 };
 
+const getAttendanceReport = async (req, res) => {
+  try {
+    const students = await Attendance.aggregate([
+      {
+        $group: {
+          _id: "$studentId",
+          totalClasses: { $sum: 1 },
+          present: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "present"] }, 1, 0]
+            }
+          }
+        }
+      }
+    ]);
+
+    res.json(students);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getAttendanceHistory = async (req, res) => {
+  try {
+
+    const studentId = req.params.id;
+
+    const records = await Attendance.find({ studentId })
+      .select("date status")
+      .sort({ date: -1 });
+
+    res.json(records);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   markAttendance,
   getAttendance,
-  getStudentAttendance
+  getStudentAttendance,
+  getAttendanceReport,
+  getAttendanceHistory
 };
