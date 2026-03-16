@@ -4,6 +4,7 @@ const connectDB = require("./config/db");
 const studentRoutes = require("./routes/studentRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const marksRoutes = require("./routes/marksRoutes");
+const timetableRoutes = require("./routes/timetableRoutes");
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.get("/", (req, res) => {
 app.use("/students", studentRoutes);
 app.use("/attendance", attendanceRoutes);
 app.use("/marks", marksRoutes);
+app.use("/timetable", timetableRoutes);
 
 const PORT = 5000;
 

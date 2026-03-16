@@ -68,6 +68,54 @@ const deleteStudent = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+}; 
+
+const Attendance = require("../models/attendanceModel");
+const Marks = require("../models/marksModel");
+
+const getStudentSummary = async (req, res) => {
+  try {
+
+    const studentId = req.params.id;
+
+    const student = await Student.findById(studentId);
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    const attendanceRecords = await Attendance.find({ studentId });
+
+    const totalClasses = attendanceRecords.length;
+
+    const present = attendanceRecords.filter(
+      (record) => record.status === "present"
+    ).length;
+
+    const attendancePercentage =
+      totalClasses === 0 ? 0 : (present / totalClasses) * 100;
+
+    const marksRecords = await Marks.find({ studentId });
+
+    const totalMarks = marksRecords.reduce(
+      (sum, mark) => sum + mark.score,
+      0
+    );
+
+    const averageMarks =
+      marksRecords.length === 0
+        ? 0
+        : totalMarks / marksRecords.length;
+
+    res.json({
+      name: student.name,
+      attendancePercentage: attendancePercentage.toFixed(2),
+      averageMarks: averageMarks.toFixed(2)
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 module.exports = {
@@ -75,5 +123,6 @@ module.exports = {
   getStudents,
   getStudentById,
   updateStudent,
-  deleteStudent
+  deleteStudent,
+  getStudentSummary
 };
