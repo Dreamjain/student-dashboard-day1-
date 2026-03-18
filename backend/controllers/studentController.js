@@ -70,6 +70,30 @@ const deleteStudent = async (req, res) => {
   }
 }; 
 
+const loginStudent = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const student = await Student.findOne({ email });
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    if (student.password !== password) {
+      return res.status(400).json({ message: "Invalid password" });
+    }
+
+    res.json({
+      message: "Login successful",
+      studentId: student._id
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const Attendance = require("../models/attendanceModel");
 const Marks = require("../models/marksModel");
 
@@ -124,5 +148,6 @@ module.exports = {
   getStudentById,
   updateStudent,
   deleteStudent,
-  getStudentSummary
+  getStudentSummary,
+  loginStudent
 };
