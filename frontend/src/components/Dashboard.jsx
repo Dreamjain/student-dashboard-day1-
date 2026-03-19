@@ -1,41 +1,61 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { FaChartBar, FaCalendar, FaClock } from "react-icons/fa";
+import "./dashboard.css";
 
-function Dashboard() {
+function Dashboard({ studentId, setActiveTab }) {
   const [summary, setSummary] = useState(null);
 
-  const studentId = "69ac40da5d14dbf58fbba148";
-
-  useEffect(() => {
+  useEffect(() => {  
     const fetchSummary = async () => {
       try {
         const res = await axios.get(
           `http://localhost:5000/students/summary/${studentId}`
         );
 
-        console.log("API DATA:", res.data); // debug
+        console.log("Summary:", res.data);
         setSummary(res.data);
       } catch (error) {
-        console.error("API ERROR:", error);
+        console.error(error);
       }
     };
 
     fetchSummary();
-  }, []);
+  }, [studentId]);
+
+  if (!summary) return <p>Loading...</p>;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Dashboard</h2>
+    
+    <div className="dashboard">
+      
+      <h1 className="title">dream-verse</h1>
 
-      {!summary && <p>Loading...</p>}
+      <div className="user">
+        <span className="dot"></span>
+        {summary.name}
+      </div>
 
-      {summary && (
-        <div>
-          <p>Name: {summary.name}</p>
-          <p>Attendance: {summary.attendancePercentage}%</p>
-          <p>Average Marks: {summary.averageMarks}</p>
+      <div className="grid">
+
+       <div className="card" onClick={() => setActiveTab("attendance")}>
+           Attendance: {summary.attendancePercentage}%
+       </div>
+
+        <div className="card" onClick={() => setActiveTab("timetable")}>
+           Timetable
+       </div>
+
+        <div className="card" onClick={() => setActiveTab("marks")}>
+          Avg Marks: {summary.averageMarks}
         </div>
-      )}
+
+        <div className="card">
+          Calendar <FaCalendar />
+        </div>
+
+      </div>
+
     </div>
   );
 }
