@@ -10,6 +10,8 @@ function App() {
 
   return (
     <div style={{
+      position: "relative", 
+      
       padding: "20px",
       fontFamily: "Arial",
       backgroundColor: "#190c45",
@@ -47,6 +49,28 @@ function App() {
 {/* Show Timetable */}
 {activeTab === "timetable" && (
   <Timetable />
+)}
+{studentId && (
+   <button
+    onClick={() => setStudentId(null)}
+    style={{
+      position: "absolute",
+      top: "20px",
+      right: "20px",
+      padding: "10px 20px",
+      background: "yellow",
+      color: "black",
+      border: "none",
+      borderRadius: "10px",
+      cursor: "pointer",
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)"
+      
+    }}
+  >
+    Logout
+  </button>
+
+  
 )}
         </div>
       )}
