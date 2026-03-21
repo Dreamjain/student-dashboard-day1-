@@ -1,0 +1,43 @@
+.sidebar {
+  width: 200px;
+  height: 100vh;
+  background: #020617;
+  color: white;
+  padding: 20px;
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+.sidebar h2 {
+  margin-bottom: 30px;
+}
+
+.sidebar button {
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #1e293b;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.sidebar button:hover {
+  background: #334155;
+}
+
+.logout {
+  margin-top: 40px;
+  background: red;
+}
+.active {
+  background: #6366f1;
+}
+.sidebar button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
