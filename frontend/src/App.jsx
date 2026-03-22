@@ -15,7 +15,7 @@ function App() {
       position: "relative",
       padding: "20px",
       fontFamily: "Arial",
-      backgroundColor: "#190c45",
+      backgroundColor: "linear-gradient(135deg, #0f172a, #020617)",
       minHeight: "100vh"
     }}
   >
