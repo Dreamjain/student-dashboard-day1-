@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaChartBar, FaCalendar, FaClock } from "react-icons/fa";
 import "./dashboard.css";
+import Charts from "./Charts";
 
 function Dashboard({ studentId, setActiveTab }) {
   const [summary, setSummary] = useState(null);
@@ -53,11 +54,12 @@ function Dashboard({ studentId, setActiveTab }) {
         <div className="card">
           Calendar <FaCalendar />
         </div>
-
+        
       </div>
-
+      <Charts/>
     </div>
+   
   );
 }
-
+ 
 export default Dashboard;
