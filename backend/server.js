@@ -5,6 +5,7 @@ const studentRoutes = require("./routes/studentRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const marksRoutes = require("./routes/marksRoutes");
 const timetableRoutes = require("./routes/timetableRoutes");
+const facultyRoutes = require("./routes/facultyRoutes");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/students", studentRoutes);
 app.use("/attendance", attendanceRoutes);
 app.use("/marks", marksRoutes);
 app.use("/timetable", timetableRoutes);
+app.use("/api/faculty", facultyRoutes);
 
 const PORT = 5000;
 

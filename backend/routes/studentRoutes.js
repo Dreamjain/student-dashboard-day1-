@@ -18,5 +18,5 @@ router.put("/:id", updateStudent);
 router.delete("/:id", deleteStudent);
 router.get("/summary/:id", getStudentSummary);
 router.post("/login", loginStudent);
-
+router.delete("/id",deleteStudent);
 module.exports = router;
