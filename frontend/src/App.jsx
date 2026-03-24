@@ -4,10 +4,13 @@ import Dashboard from "./components/Dashboard";
 import Marks from "./components/Marks";
 import Timetable from "./components/Timetable";
 import Sidebar from "./components/Sidebar";
+import FacultyLogin from "./components/FacultyLogin";
+import FacultyDashboard from "./components/FacultyDashboard";
 
 function App() {
   const [studentId, setStudentId] = useState(null);
   const [activeTab, setActiveTab] = useState(null);
+  const [facultyId, setFacultyId] = useState(null);
 
   return (
   <div
@@ -21,48 +24,53 @@ function App() {
   >
     <h1 style={{ textAlign: "center" }}>🎓 Academics</h1>
 
-    {!studentId ? (
-      <Login setStudentId={setStudentId} />
-    ) : (
-      <>
-        {/* Sidebar */}
-        <Sidebar
+    {!studentId && !facultyId ? (
+  <>
+    <Login setStudentId={setStudentId} />
+    <FacultyLogin setFacultyId={setFacultyId} />
+  </>
+) : studentId ? (
+  <>
+    {/* Sidebar */}
+    <Sidebar
+      setActiveTab={setActiveTab}
+      setStudentId={setStudentId}
+      activeTab={activeTab}
+    />
+
+    {/* Main Content */}
+    <div style={{ marginLeft: "220px", padding: "20px" }}>
+
+      {/* Back Button */}
+      {activeTab && (
+        <button onClick={() => setActiveTab(null)}>
+          ⬅ Back
+        </button>
+      )}
+
+      {/* Dashboard */}
+      {!activeTab && (
+        <Dashboard
+          studentId={studentId}
           setActiveTab={setActiveTab}
-          setStudentId={setStudentId}
-          activeTab = {activeTab}
         />
+      )}
 
-        {/* Main Content */}
-        <div style={{ marginLeft: "220px", padding: "20px" }}>
+      {/* Marks */}
+      {activeTab === "marks" && (
+        <Marks studentId={studentId} />
+      )}
 
-          {/* Back Button */}
-          {activeTab && (
-            <button onClick={() => setActiveTab(null)}>
-              ⬅ Back
-            </button>
-          )}
+      {/* Timetable */}
+      {activeTab === "timetable" && (
+        <Timetable />
+      )}
 
-          {/* Dashboard */}
-          {!activeTab && (
-            <Dashboard
-              studentId={studentId}
-              setActiveTab={setActiveTab}
-            />
-          )}
-
-          {/* Marks */}
-          {activeTab === "marks" && (
-            <Marks studentId={studentId} />
-          )}
-
-          {/* Timetable */}
-          {activeTab === "timetable" && (
-            <Timetable />
-          )}
-
-        </div>
-      </>
-    )}
+    </div>
+  </>
+) : (
+  <FacultyDashboard />
+)}
   </div>
 );
 }
