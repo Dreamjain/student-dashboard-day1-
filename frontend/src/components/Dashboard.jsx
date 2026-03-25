@@ -6,6 +6,7 @@ import Charts from "./Charts";
 
 function Dashboard({ studentId, setActiveTab }) {
   const [summary, setSummary] = useState(null);
+ 
 
   useEffect(() => {  
     const fetchSummary = async () => {
