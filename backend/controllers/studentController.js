@@ -142,6 +142,15 @@ const getStudentSummary = async (req, res) => {
   }
 };
 
+const getAllStudents = async (req, res) => {
+  try {
+    const students = await Student.find();
+    res.json(students);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createStudent,
   getStudents,
@@ -149,5 +158,6 @@ module.exports = {
   updateStudent,
   deleteStudent,
   getStudentSummary,
-  loginStudent
+  loginStudent,
+  getAllStudents
 };
