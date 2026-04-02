@@ -8,17 +8,14 @@ const {
   updateStudent,
   deleteStudent,
   getStudentSummary,
-  loginStudent,
-  getAllStudents
+  loginStudent
 } = require("../controllers/studentController");
 
 router.post("/", createStudent);
+router.post("/login", loginStudent);
+router.get("/summary/:id", getStudentSummary);
 router.get("/", getStudents);
 router.get("/:id", getStudentById);
 router.put("/:id", updateStudent);
 router.delete("/:id", deleteStudent);
-router.get("/summary/:id", getStudentSummary);
-router.post("/login", loginStudent);
-router.delete("/:id", deleteStudent);
-router.get("/", getAllStudents);
 module.exports = router;

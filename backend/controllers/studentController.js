@@ -1,7 +1,7 @@
 const Student = require("../models/studentModel");
 
 // Create student
-const createStudent = async (req, res) => {
+exports.createStudent = async (req, res) => {
   try {
     const student = new Student(req.body);
     const savedStudent = await student.save();
@@ -12,7 +12,7 @@ const createStudent = async (req, res) => {
 };
 
 // Get all students
-const getStudents = async (req, res) => {
+exports.getStudents = async (req, res) => {
   try {
     const students = await Student.find();
     res.json(students);
@@ -22,7 +22,7 @@ const getStudents = async (req, res) => {
 };
 
 // Get student by id
-const getStudentById = async (req, res) => {
+exports.getStudentById = async (req, res) => {
   try {
     const student = await Student.findById(req.params.id);
 
@@ -37,7 +37,7 @@ const getStudentById = async (req, res) => {
 };
 
 // Update student
-const updateStudent = async (req, res) => {
+exports.updateStudent = async (req, res) => {
   try {
     const updatedStudent = await Student.findByIdAndUpdate(
       req.params.id,
@@ -56,7 +56,7 @@ const updateStudent = async (req, res) => {
 };
 
 // Delete student
-const deleteStudent = async (req, res) => {
+exports.deleteStudent = async (req, res) => {
   try {
     const deletedStudent = await Student.findByIdAndDelete(req.params.id);
 
@@ -68,36 +68,9 @@ const deleteStudent = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}; 
+}
 
-const loginStudent = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const student = await Student.findOne({ email });
-
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
-
-    if (student.password !== password) {
-      return res.status(400).json({ message: "Invalid password" });
-    }
-
-    res.json({
-      message: "Login successful",
-      studentId: student._id
-    });
-
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-const Attendance = require("../models/attendanceModel");
-const Marks = require("../models/marksModel");
-
-const getStudentSummary = async (req, res) => {
+exports.getStudentSummary = async (req, res) => {
   try {
 
     const studentId = req.params.id;
@@ -142,18 +115,9 @@ const getStudentSummary = async (req, res) => {
   }
 };
 
-const getAllStudents = async (req, res) => {
-  try {
-    const students = await Student.find();
-    res.json(students);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
 exports.loginStudent = async (req, res) => {
   try {
-    const { rollNumber } = req.body;
+    const { rollNumber, password } = req.body;
 
     const student = await Student.findOne({ rollNumber });
 
@@ -161,19 +125,12 @@ exports.loginStudent = async (req, res) => {
       return res.status(404).json({ message: "Student not found" });
     }
 
+    if (student.Password !== password) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
     res.json(student);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-};
-
-module.exports = {
-  createStudent,
-  getStudents,
-  getStudentById,
-  updateStudent,
-  deleteStudent,
-  getStudentSummary,
-  loginStudent,
-  getAllStudents
 };

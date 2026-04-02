@@ -1,21 +1,16 @@
 const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
-  },
+  name: String,
   rollNumber: {
     type: String,
-    required: true
+    UNIQUE: true
   },
-  department: {
+  department: String,
+  year: Number,
+  Password: {
     type: String,
-    required: true
-  },
-  year: {
-    type: Number,
-    required: true
+    default: "123456"
   }
 });
 const Student = mongoose.model("Student", studentSchema);
