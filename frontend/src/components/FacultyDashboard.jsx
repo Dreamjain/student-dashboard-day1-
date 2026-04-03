@@ -29,7 +29,7 @@ function FacultyDashboard() {
   const addMarks = async () => {
     try {
       await axios.post("http://localhost:5000/api/marks", {
-        studentId,
+        studentId: studentId,
         subject,
         score: marks
       });
@@ -41,15 +41,35 @@ function FacultyDashboard() {
   };
 
   const addAttendance = async () => {
+    if (!studentId) {
+      alert("Please select a student first!");
+      return;
+    }
+    
+    if (!subject) {
+      alert("Please select a subject!");
+      return;
+    }
+
+    if (!attendance) {
+      alert("Please enter attendance status!");
+      return;
+    }
+
     try {
-      await axios.post("http://localhost:5000/api/attendance", {
-        studentId,
-        status: attendance
+      const response = await axios.post("http://localhost:5000/api/attendance", {
+        studentId: studentId,
+        subject,
+        status: attendance.toLowerCase()
       });
 
-      alert("Attendance added");
+      console.log("Success:", response.data);
+      alert("Attendance added successfully!");
+      setAttendance(""); // Clear the input
     } catch (error) {
-      console.error(error);
+      console.error("Full error:", error);
+      const errorMsg = error.response?.data?.message || error.message || "Unknown error";
+      alert("Error: " + errorMsg);
     }
   };
 
@@ -59,14 +79,13 @@ function FacultyDashboard() {
 
       {/* Dropdown */}
       <select onChange={(e) => setStudentId(e.target.value)}>
-        <option>Select Student</option>
-        
-        {students.map((student) => (
-          <option key={student._id} value={student._id}>
-            {student.name} ({student.rollNumber})
-          </option>
-        ))}
-      </select>
+  <option>Select Student</option>
+  {students.map((s) => (
+    <option key={s._id} value={s._id}>
+      {s.name} ({s.rollNumber})
+    </option>
+  ))}
+</select>
 
       <select onChange={(e) => setSubject(e.target.value)}>
         <option>Select Subject</option>

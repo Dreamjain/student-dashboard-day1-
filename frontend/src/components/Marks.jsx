@@ -5,30 +5,33 @@ function Marks({studentId}) {
   const [marks, setMarks] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchMarks = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/marks/student/${studentId}`
+      );
 
+      console.log("Marks data:", res.data);
+      setMarks(res.data);
+    } catch (error) {
+      console.error("Error fetching marks:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchMarks = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:5000/marks/student/${studentId}`
-        );
-
-        console.log("Marks data:", res.data); // debug
-        setMarks(res.data);
-      } catch (error) {
-        console.error("Error fetching marks:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchMarks();
-  }, []);
+  }, [studentId]);
 
   return (
     <div style={{ marginTop: "20px" }}>
       <h2>Marks</h2>
+      
+      <button onClick={fetchMarks} disabled={loading} style={{ marginBottom: "20px" }}>
+        {loading ? "Refreshing..." : "🔄 Refresh"}
+      </button>
 
       {loading && <p>Loading...</p>}
 

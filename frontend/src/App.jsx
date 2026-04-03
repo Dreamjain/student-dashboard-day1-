@@ -2,6 +2,7 @@ import { useState } from "react";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import Marks from "./components/Marks";
+import Attendance from "./components/Attendance";
 import Timetable from "./components/Timetable";
 import Sidebar from "./components/Sidebar";
 import FacultyLogin from "./components/FacultyLogin";
@@ -59,6 +60,11 @@ function App() {
       {/* Marks */}
       {activeTab === "marks" && (
         <Marks studentId={studentId} />
+      )}
+
+      {/* Attendance */}
+      {activeTab === "attendance" && (
+        <Attendance studentId={studentId} />
       )}
 
       {/* Timetable */}

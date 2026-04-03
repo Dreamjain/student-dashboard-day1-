@@ -1,7 +1,12 @@
 import "./sidebar.css";
-import { FaHome, FaChartBar, FaClock } from "react-icons/fa";
+import { FaHome, FaChartBar, FaClock, FaSignOutAlt } from "react-icons/fa";
 
 function Sidebar({ setActiveTab, setStudentId, activeTab }) {
+  const handleLogout = () => {
+    setStudentId(null);
+    setActiveTab(null);
+  };
+
   return (
     <div className="sidebar">
       <h2>🎓 Campus</h2>
@@ -28,6 +33,14 @@ function Sidebar({ setActiveTab, setStudentId, activeTab }) {
 >
   <FaClock/>
   Timetable
+</button>
+
+<button
+  className="logout-btn"
+  onClick={handleLogout}
+>
+  <FaSignOutAlt/>
+  Logout
 </button>
     </div>
   );
