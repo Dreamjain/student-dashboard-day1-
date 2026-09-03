@@ -1,36 +1,73 @@
 # 🎓 Student Dashboard
 
-A full-stack student dashboard project with a **React + Vite frontend** and a **Node.js + Express + MongoDB backend**. The frontend includes data visualization components and communicates with the backend through HTTP requests.
+A full-stack academic dashboard built with **React + Vite** on the frontend and **Node.js + Express + MongoDB** on the backend. The application provides students with a central place to view academic information such as attendance, marks, timetable data, and visual summaries.
 
-## 🖼️ Architecture
+## 🖼️ Project Preview
 
-```mermaid
-flowchart LR
-    U[Student] --> UI[React + Vite Dashboard]
-    UI --> AX[Axios]
-    AX --> API[Express API]
-    API --> M[Mongoose]
-    M --> DB[(MongoDB)]
-    DB --> M --> API --> AX --> UI
+The preview below is a **frontend-based concept preview** created from the components and styling present in this repository. It is intended to show how the dashboard experience is structured; it is not a captured screenshot of a running deployment.
+
+![Student Dashboard frontend concept preview](docs/student-dashboard-preview.svg)
+
+## ✨ Features
+
+- Student login and faculty login flows
+- Student dashboard with academic summary cards
+- Attendance information
+- Marks and average-score information
+- Timetable view
+- Calendar area
+- Data visualizations using Recharts
+- Sidebar-based dashboard navigation
+- Backend API communication through Axios
+- MongoDB persistence through Mongoose
+
+## 🏗️ Application Structure
+
+```text
+Student
+   │
+   ▼
+React + Vite Frontend
+   │
+   │ Axios / HTTP
+   ▼
+Express Backend
+   │
+   │ Mongoose
+   ▼
+MongoDB
 ```
 
-## ✨ Key Areas
+## 🧩 Frontend
 
-### Frontend
-- React-based dashboard interface
-- Vite development/build tooling
-- Axios for API communication
-- React Icons for interface icons
-- Recharts for data visualization
+The frontend is organized around reusable React components including:
 
-### Backend
-- Express HTTP server
-- CORS configuration
-- Dotenv environment configuration
-- Mongoose for MongoDB access
-- Nodemon for development
+- `Login` — student authentication entry point
+- `FacultyLogin` — faculty authentication entry point
+- `Dashboard` — student academic overview
+- `Marks` — marks information
+- `Attendance` — attendance information
+- `Timetable` — class schedule
+- `Sidebar` — dashboard navigation
+- `Charts` — academic data visualization
 
-## 🧰 Technology
+The main dashboard presents the student's summary and provides navigation to attendance, timetable, and marks sections. fileciteturn155file0L2-L6
+
+## ⚙️ Backend
+
+The backend provides the API layer used by the frontend and connects to MongoDB using Mongoose.
+
+**Stack:**
+
+- Node.js
+- Express 5
+- MongoDB
+- Mongoose
+- CORS
+- dotenv
+- Nodemon
+
+## 🛠️ Technology Stack
 
 ![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
@@ -40,7 +77,7 @@ flowchart LR
 
 ## 🚀 Run Locally
 
-### Backend
+### 1. Start the backend
 
 ```bash
 cd backend
@@ -48,7 +85,7 @@ npm install
 npm run dev
 ```
 
-### Frontend
+### 2. Start the frontend
 
 ```bash
 cd frontend
@@ -56,15 +93,34 @@ npm install
 npm run dev
 ```
 
-Configure the backend's environment variables in a local `.env` file as required by the application. Do not commit database credentials or other secrets.
+Configure the required backend environment variables in a local `.env` file. Keep database credentials and other secrets out of Git.
 
-## 📁 Structure
+## 📁 Project Structure
 
 ```text
 .
-├── frontend/   # React + Vite dashboard
-└── backend/    # Express + MongoDB API
+├── frontend/
+│   ├── public/
+│   └── src/
+│       ├── components/
+│       ├── App.jsx
+│       └── ...
+├── backend/
+│   └── ...
+├── docs/
+│   └── student-dashboard-preview.svg
+└── README.md
 ```
+
+## 🎯 What This Project Demonstrates
+
+- Full-stack web application development
+- React component-based UI design
+- REST API integration
+- MongoDB database connectivity
+- Academic data visualization
+- Frontend/backend separation
+- Authentication-oriented application flows
 
 ## 📌 Status
 
@@ -72,4 +128,4 @@ Development / learning project.
 
 ## 👨‍💻 Author
 
-**Dreamjain** — [GitHub](https://github.com/Dreamjain)
+**Dreamjain**
