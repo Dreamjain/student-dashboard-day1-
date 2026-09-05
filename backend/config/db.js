@@ -1,13 +1,18 @@
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
-  try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/student-dashboard");
+  const mongoUri = process.env.MONGO_URI;
 
+  if (!mongoUri) {
+    throw new Error("MONGO_URI is not configured");
+  }
+
+  try {
+    await mongoose.connect(mongoUri);
     console.log("MongoDB Connected ✅");
   } catch (error) {
-    console.error("Database connection failed ❌");
-    process.exit(1);
+    console.error("Database connection failed ❌", error.message);
+    throw error;
   }
 };
 
