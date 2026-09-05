@@ -1,35 +1,38 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 
-function Attendance({studentId}) {
+function Attendance({ studentId }) {
   const [attendance, setAttendance] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchAttendance = async () => {
+  const fetchAttendance = useCallback(async () => {
     setLoading(true);
     try {
       const res = await axios.get(
         `http://localhost:5000/api/attendance/history/${studentId}`
       );
 
-      console.log("Attendance data:", res.data);
       setAttendance(res.data);
     } catch (error) {
       console.error("Error fetching attendance:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [studentId]);
 
   useEffect(() => {
     fetchAttendance();
-  }, [studentId]);
+  }, [fetchAttendance]);
 
   return (
     <div style={{ marginTop: "20px" }}>
       <h2>Attendance History</h2>
 
-      <button onClick={fetchAttendance} disabled={loading} style={{ marginBottom: "20px" }}>
+      <button
+        onClick={fetchAttendance}
+        disabled={loading}
+        style={{ marginBottom: "20px" }}
+      >
         {loading ? "Refreshing..." : "🔄 Refresh"}
       </button>
 
