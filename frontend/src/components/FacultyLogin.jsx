@@ -13,7 +13,7 @@ function FacultyLogin({ setFacultyId }) {
       );
 
       setFacultyId(res.data.facultyId);
-    } catch (error) {
+    } catch {
       alert("Login failed");
     }
   };
