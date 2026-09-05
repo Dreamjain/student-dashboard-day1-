@@ -4,20 +4,19 @@ import axios from "axios";
 function Login({ setStudentId }) {
   const [rollNumber, setRollNumber] = useState("");
   const [password, setPassword] = useState("");
-  
 
- const handleLogin = async () => {
-  try {
-    const res = await axios.post("http://localhost:5000/students/login", {
-      rollNumber,
-      password
-    });
+  const handleLogin = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/students/login", {
+        rollNumber,
+        password
+      });
 
-    setStudentId(res.data._id);
-  } catch (err) {
-    alert("Student not found");
-  }
-};
+      setStudentId(res.data._id);
+    } catch {
+      alert("Student not found");
+    }
+  };
 
   return (
     <div style={{ marginTop: "50px" }}>
