@@ -1,91 +1,122 @@
 # 🎓 Student Dashboard
 
-A full-stack academic dashboard built with **React + Vite** on the frontend and **Node.js + Express + MongoDB** on the backend. The application provides students with a central place to view academic information such as attendance, marks, timetable data, and visual summaries.
+A full-stack academic dashboard built with **React + Vite** on the frontend and **Node.js + Express + MongoDB** on the backend. Students can view attendance, marks, timetable data, and academic summaries through a component-based dashboard.
 
 ## 🖼️ Project Preview
 
-The preview below is a **frontend-based concept preview** created from the components and styling present in this repository. It is intended to show how the dashboard experience is structured; it is not a captured screenshot of a running deployment.
+The repository includes a frontend-based preview that documents the implemented dashboard structure. It is explicitly a concept preview rather than a screenshot of a running deployment.
 
-![Student Dashboard frontend concept preview](docs/student-dashboard-preview.svg)
+![Student Dashboard frontend preview](docs/student-dashboard-preview.svg)
 
 ## ✨ Features
 
-- Student login and faculty login flows
-- Student dashboard with academic summary cards
-- Attendance information
-- Marks and average-score information
+- Student and faculty login flows
+- Student academic summary
+- Attendance and marks views
 - Timetable view
-- Calendar area
-- Data visualizations using Recharts
-- Sidebar-based dashboard navigation
-- Backend API communication through Axios
-- MongoDB persistence through Mongoose
+- Recharts-based visualizations
+- React component-based UI
+- REST API communication with Axios
+- MongoDB persistence with Mongoose
+- Backend health endpoint for operational checks
+- Automated frontend and backend CI validation
 
-## 🏗️ Application Structure
+## 🏗️ Architecture
 
 ```text
-Student
-   │
-   ▼
-React + Vite Frontend
-   │
-   │ Axios / HTTP
-   ▼
-Express Backend
-   │
-   │ Mongoose
-   ▼
+React + Vite
+     │
+     │ Axios / HTTP
+     ▼
+Express REST API
+     │
+     │ Mongoose
+     ▼
 MongoDB
 ```
 
 ## 🧩 Frontend
 
-The frontend is organized around reusable React components including:
+Reusable components are organized under `frontend/src/components/`, including:
 
 - `Login` — student authentication entry point
 - `FacultyLogin` — faculty authentication entry point
-- `Dashboard` — student academic overview
+- `Dashboard` — academic overview
 - `Marks` — marks information
 - `Attendance` — attendance information
 - `Timetable` — class schedule
 - `Sidebar` — dashboard navigation
-- `Charts` — academic data visualization
-
-The main dashboard presents the student's summary and provides navigation to attendance, timetable, and marks sections. fileciteturn155file0L2-L6
+- `Charts` — academic visualizations
 
 ## ⚙️ Backend
 
-The backend provides the API layer used by the frontend and connects to MongoDB using Mongoose.
+The backend exposes REST endpoints for students, attendance, marks, timetable, and faculty data. MongoDB configuration is loaded from environment variables rather than being hard-coded in source code.
 
-**Stack:**
+### Health check
 
-- Node.js
-- Express 5
-- MongoDB
-- Mongoose
-- CORS
-- dotenv
-- Nodemon
+Once the API is running, open:
+
+```text
+GET http://localhost:5000/health
+```
+
+Expected response:
+
+```json
+{"status":"ok"}
+```
 
 ## 🛠️ Technology Stack
 
-![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
-![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express-000000?logo=express&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white)
+- React 19 + Vite
+- Node.js + Express 5
+- MongoDB + Mongoose
+- Axios
+- Recharts
+- ESLint
+- GitHub Actions
 
 ## 🚀 Run Locally
 
-### 1. Start the backend
+### 1. Start MongoDB
+
+Make sure a MongoDB instance is available locally or use a hosted MongoDB connection string.
+
+### 2. Configure the backend
 
 ```bash
 cd backend
+cp .env.example .env
+```
+
+Edit `.env` if your MongoDB connection differs from the example:
+
+```env
+MONGO_URI=mongodb://127.0.0.1:27017/student-dashboard
+PORT=5000
+```
+
+Install dependencies and start the API:
+
+```bash
 npm install
 npm run dev
 ```
 
-### 2. Start the frontend
+### 3. Seed demo students (optional)
+
+In a second terminal:
+
+```bash
+cd backend
+npm run seed
+```
+
+The seed script replaces the existing `Student` collection with the sample records in `students.json`.
+
+### 4. Start the frontend
+
+In another terminal:
 
 ```bash
 cd frontend
@@ -93,7 +124,28 @@ npm install
 npm run dev
 ```
 
-Configure the required backend environment variables in a local `.env` file. Keep database credentials and other secrets out of Git.
+Vite will print the local frontend URL in the terminal.
+
+## 🧪 Quality Checks
+
+Backend syntax validation:
+
+```bash
+cd backend
+npm ci
+npm run check
+```
+
+Frontend lint and production build:
+
+```bash
+cd frontend
+npm ci
+npm run lint
+npm run build
+```
+
+GitHub Actions runs these checks automatically on pushes and pull requests.
 
 ## 📁 Project Structure
 
@@ -106,25 +158,31 @@ Configure the required backend environment variables in a local `.env` file. Kee
 │       ├── App.jsx
 │       └── ...
 ├── backend/
-│   └── ...
+│   ├── config/
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── .env.example
+│   └── server.js
 ├── docs/
 │   └── student-dashboard-preview.svg
 └── README.md
 ```
 
-## 🎯 What This Project Demonstrates
+## 🎯 Engineering Demonstrated
 
-- Full-stack web application development
-- React component-based UI design
-- REST API integration
-- MongoDB database connectivity
-- Academic data visualization
-- Frontend/backend separation
-- Authentication-oriented application flows
+- Full-stack React/Node.js architecture
+- REST API design and separation of concerns
+- MongoDB schema validation with Mongoose
+- Environment-based configuration
+- Input and error handling
+- Authentication-oriented API flow
+- Production build and lint validation
+- CI quality gates with GitHub Actions
 
 ## 📌 Status
 
-Development / learning project.
+Development / learning project with an actively maintained full-stack implementation.
 
 ## 👨‍💻 Author
 
