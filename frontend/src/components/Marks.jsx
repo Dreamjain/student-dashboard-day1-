@@ -1,35 +1,38 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 
-function Marks({studentId}) {
+function Marks({ studentId }) {
   const [marks, setMarks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchMarks = async () => {
+  const fetchMarks = useCallback(async () => {
     setLoading(true);
     try {
       const res = await axios.get(
         `http://localhost:5000/api/marks/student/${studentId}`
       );
 
-      console.log("Marks data:", res.data);
       setMarks(res.data);
     } catch (error) {
       console.error("Error fetching marks:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [studentId]);
 
   useEffect(() => {
     fetchMarks();
-  }, [studentId]);
+  }, [fetchMarks]);
 
   return (
     <div style={{ marginTop: "20px" }}>
       <h2>Marks</h2>
-      
-      <button onClick={fetchMarks} disabled={loading} style={{ marginBottom: "20px" }}>
+
+      <button
+        onClick={fetchMarks}
+        disabled={loading}
+        style={{ marginBottom: "20px" }}
+      >
         {loading ? "Refreshing..." : "🔄 Refresh"}
       </button>
 
@@ -39,9 +42,9 @@ function Marks({studentId}) {
 
       {!loading && marks.length > 0 && (
         <ul>
-          {marks.map((m) => (
-            <li key={m._id}>
-              {m.subject} → {m.score}
+          {marks.map((mark) => (
+            <li key={mark._id}>
+              {mark.subject} → {mark.score}
             </li>
           ))}
         </ul>
