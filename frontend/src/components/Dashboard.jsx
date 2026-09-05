@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
-import { FaChartBar, FaCalendar, FaClock } from "react-icons/fa";
+import { FaCalendar } from "react-icons/fa";
 import "./dashboard.css";
 import Charts from "./Charts";
 
@@ -8,14 +8,13 @@ function Dashboard({ studentId, setActiveTab }) {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchSummary = async () => {
+  const fetchSummary = useCallback(async () => {
     setLoading(true);
     try {
       const res = await axios.get(
         `http://localhost:5000/students/summary/${studentId}`
       );
 
-      console.log("Summary:", res.data);
       setSummary(res.data);
     } catch (error) {
       console.error("Error fetching summary:", error);
@@ -23,21 +22,23 @@ function Dashboard({ studentId, setActiveTab }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {  
-    fetchSummary();
   }, [studentId]);
+
+  useEffect(() => {
+    fetchSummary();
+  }, [fetchSummary]);
 
   if (!summary) return <p>Loading...</p>;
 
   return (
-    
     <div className="dashboard">
-      
       <h1 className="title">dream-verse</h1>
-      
-      <button onClick={fetchSummary} disabled={loading} style={{ marginBottom: "20px" }}>
+
+      <button
+        onClick={fetchSummary}
+        disabled={loading}
+        style={{ marginBottom: "20px" }}
+      >
         {loading ? "Refreshing..." : "🔄 Refresh"}
       </button>
 
@@ -47,14 +48,13 @@ function Dashboard({ studentId, setActiveTab }) {
       </div>
 
       <div className="grid">
-
-       <div className="card" onClick={() => setActiveTab("attendance")}>
-           Attendance: {summary.attendancePercentage}%
-       </div>
+        <div className="card" onClick={() => setActiveTab("attendance")}>
+          Attendance: {summary.attendancePercentage}%
+        </div>
 
         <div className="card" onClick={() => setActiveTab("timetable")}>
-           Timetable
-       </div>
+          Timetable
+        </div>
 
         <div className="card" onClick={() => setActiveTab("marks")}>
           Avg Marks: {summary.averageMarks}
@@ -63,12 +63,11 @@ function Dashboard({ studentId, setActiveTab }) {
         <div className="card">
           Calendar <FaCalendar />
         </div>
-        
       </div>
-      <Charts/>
+
+      <Charts />
     </div>
-   
   );
 }
- 
+
 export default Dashboard;
