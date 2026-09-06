@@ -1,24 +1,23 @@
 import { useCallback, useEffect, useState } from "react";
-import axios from "axios";
 import { FaCalendar } from "react-icons/fa";
 import "./dashboard.css";
 import Charts from "./Charts";
+import api from "../api/client";
 
 function Dashboard({ studentId, setActiveTab }) {
   const [summary, setSummary] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
-      const res = await axios.get(
-        `http://localhost:5000/students/summary/${studentId}`
-      );
-
+      const res = await api.get(`/students/summary/${studentId}`);
       setSummary(res.data);
-    } catch (error) {
-      console.error("Error fetching summary:", error);
-      setSummary({ name: "Error", attendancePercentage: 0, averageMarks: 0 });
+    } catch (requestError) {
+      console.error("Error fetching summary:", requestError);
+      setError("Could not load your dashboard data. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -28,44 +27,43 @@ function Dashboard({ studentId, setActiveTab }) {
     fetchSummary();
   }, [fetchSummary]);
 
-  if (!summary) return <p>Loading...</p>;
+  if (loading && !summary) return <p>Loading dashboard...</p>;
 
   return (
     <div className="dashboard">
-      <h1 className="title">dream-verse</h1>
+      <h1 className="title">Academics</h1>
 
-      <button
-        onClick={fetchSummary}
-        disabled={loading}
-        style={{ marginBottom: "20px" }}
-      >
+      <button onClick={fetchSummary} disabled={loading} style={{ marginBottom: "20px" }}>
         {loading ? "Refreshing..." : "🔄 Refresh"}
       </button>
 
-      <div className="user">
-        <span className="dot"></span>
-        {summary.name}
-      </div>
+      {error && <p role="alert">{error}</p>}
 
-      <div className="grid">
-        <div className="card" onClick={() => setActiveTab("attendance")}>
-          Attendance: {summary.attendancePercentage}%
-        </div>
+      {summary && (
+        <>
+          <div className="user">
+            <span className="dot"></span>
+            {summary.name}
+          </div>
 
-        <div className="card" onClick={() => setActiveTab("timetable")}>
-          Timetable
-        </div>
+          <div className="grid">
+            <button className="card" onClick={() => setActiveTab("attendance")} type="button">
+              Attendance: {summary.attendancePercentage}%
+            </button>
+            <button className="card" onClick={() => setActiveTab("timetable")} type="button">
+              Timetable
+            </button>
+            <button className="card" onClick={() => setActiveTab("marks")} type="button">
+              Avg Marks: {summary.averageMarks}
+            </button>
+            <div className="card">
+              Calendar <FaCalendar aria-hidden="true" />
+            </div>
+          </div>
 
-        <div className="card" onClick={() => setActiveTab("marks")}>
-          Avg Marks: {summary.averageMarks}
-        </div>
-
-        <div className="card">
-          Calendar <FaCalendar />
-        </div>
-      </div>
-
-      <Charts />
+          <Charts />
+        </>
+      )}
     </div>
   );
 }
