@@ -27,6 +27,9 @@ jobs:
       - name: Validate JavaScript syntax
         run: npm run check
 
+      - name: Run backend tests
+        run: npm test
+
   frontend:
     runs-on: ubuntu-latest
     defaults:
