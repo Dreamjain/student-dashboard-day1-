@@ -7,6 +7,7 @@ import Timetable from "./components/Timetable";
 import Sidebar from "./components/Sidebar";
 import FacultyLogin from "./components/FacultyLogin";
 import FacultyDashboard from "./components/FacultyDashboard";
+import ErrorBoundary from "./components/ErrorBoundary";
 import "./app.css";
 
 function App() {
@@ -21,39 +22,41 @@ function App() {
   };
 
   return (
-    <div className="app-shell">
-      <h1 className="app-heading">🎓 Academics</h1>
+    <ErrorBoundary>
+      <div className="app-shell">
+        <h1 className="app-heading">🎓 Academics</h1>
 
-      {!studentId && !facultyId ? (
-        <div className="login-grid">
-          <Login setStudentId={setStudentId} />
-          <FacultyLogin setFacultyId={setFacultyId} />
-        </div>
-      ) : studentId ? (
-        <>
-          <Sidebar
-            setActiveTab={setActiveTab}
-            setStudentId={logout}
-            activeTab={activeTab}
-          />
+        {!studentId && !facultyId ? (
+          <div className="login-grid">
+            <Login setStudentId={setStudentId} />
+            <FacultyLogin setFacultyId={setFacultyId} />
+          </div>
+        ) : studentId ? (
+          <>
+            <Sidebar
+              setActiveTab={setActiveTab}
+              setStudentId={logout}
+              activeTab={activeTab}
+            />
+            <main className="main-content">
+              {activeTab && (
+                <button onClick={() => setActiveTab(null)} type="button">
+                  ⬅ Back
+                </button>
+              )}
+              {!activeTab && <Dashboard studentId={studentId} setActiveTab={setActiveTab} />}
+              {activeTab === "marks" && <Marks studentId={studentId} />}
+              {activeTab === "attendance" && <Attendance studentId={studentId} />}
+              {activeTab === "timetable" && <Timetable />}
+            </main>
+          </>
+        ) : (
           <main className="main-content">
-            {activeTab && (
-              <button onClick={() => setActiveTab(null)} type="button">
-                ⬅ Back
-              </button>
-            )}
-            {!activeTab && <Dashboard studentId={studentId} setActiveTab={setActiveTab} />}
-            {activeTab === "marks" && <Marks studentId={studentId} />}
-            {activeTab === "attendance" && <Attendance studentId={studentId} />}
-            {activeTab === "timetable" && <Timetable />}
+            <FacultyDashboard facultyId={facultyId} onLogout={logout} />
           </main>
-        </>
-      ) : (
-        <main className="main-content">
-          <FacultyDashboard facultyId={facultyId} onLogout={logout} />
-        </main>
-      )}
-    </div>
+        )}
+      </div>
+    </ErrorBoundary>
   );
 }
 
