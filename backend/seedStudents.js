@@ -1,21 +1,28 @@
-const mongoose = require("mongoose");
 const connectDB = require("./config/db");
 const Student = require("./models/studentModel");
+const { hashPassword } = require("./utils/password");
 const students = require("./students.json");
 
 const importData = async () => {
   try {
-    await connectDB(); // connect DB
+    await connectDB();
 
     console.log("DB Connected for seeding...");
 
     await Student.deleteMany();
 
-    await Student.insertMany(students);
+    const studentsWithHashedPasswords = await Promise.all(
+      students.map(async (student) => ({
+        ...student,
+        password: await hashPassword(student.password || "123456")
+      }))
+    );
+
+    await Student.insertMany(studentsWithHashedPasswords);
 
     console.log("Students Added Successfully ✅");
 
-    process.exit();
+    process.exit(0);
   } catch (error) {
     console.error("Error:", error);
     process.exit(1);
