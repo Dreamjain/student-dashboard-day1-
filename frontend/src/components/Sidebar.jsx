@@ -8,16 +8,16 @@ function Sidebar({ setActiveTab, setStudentId, activeTab }) {
   };
 
   const navigation = [
-    [null, "Dashboard", FaHome],
-    ["marks", "Marks", FaChartBar],
-    ["attendance", "Attendance", FaClipboardCheck],
-    ["timetable", "Timetable", FaClock]
+    [null, "Dashboard", <FaHome aria-hidden="true" />],
+    ["marks", "Marks", <FaChartBar aria-hidden="true" />],
+    ["attendance", "Attendance", <FaClipboardCheck aria-hidden="true" />],
+    ["timetable", "Timetable", <FaClock aria-hidden="true" />]
   ];
 
   return (
     <aside className="sidebar" aria-label="Student navigation">
       <h2>🎓 Campus</h2>
-      {navigation.map(([tab, label, Icon]) => (
+      {navigation.map(([tab, label, icon]) => (
         <button
           key={label}
           className={activeTab === tab ? "active" : ""}
@@ -25,7 +25,7 @@ function Sidebar({ setActiveTab, setStudentId, activeTab }) {
           type="button"
           aria-current={activeTab === tab ? "page" : undefined}
         >
-          <Icon aria-hidden="true" />
+          {icon}
           {label}
         </button>
       ))}
