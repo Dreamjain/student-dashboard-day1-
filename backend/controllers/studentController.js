@@ -1,6 +1,7 @@
 const Student = require("../models/studentModel");
 const Attendance = require("../models/attendanceModel");
 const Marks = require("../models/marksModel");
+const { verifyPassword } = require("../utils/password");
 
 const handleError = (res, error) => {
   if (error.name === "ValidationError") {
@@ -127,7 +128,7 @@ exports.loginStudent = async (req, res) => {
 
     const student = await Student.findOne({ rollNumber }).select("+password");
 
-    if (!student || student.password !== password) {
+    if (!student || !(await verifyPassword(password, student.password))) {
       return res.status(401).json({ message: "Invalid roll number or password" });
     }
 
