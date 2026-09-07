@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { hashPassword, isPasswordHash } = require("../utils/password");
 
 const studentSchema = new mongoose.Schema(
   {
@@ -37,6 +38,30 @@ const studentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+studentSchema.pre("save", async function hashStudentPassword(next) {
+  if (!this.isModified("password") || isPasswordHash(this.password)) {
+    return next();
+  }
+
+  this.password = await hashPassword(this.password);
+  return next();
+});
+
+studentSchema.pre("findOneAndUpdate", async function hashUpdatedStudentPassword() {
+  const update = this.getUpdate();
+  const password = update?.$set?.password ?? update?.password;
+
+  if (!password || isPasswordHash(password)) return;
+
+  const hashedPassword = await hashPassword(password);
+
+  if (update.$set) {
+    update.$set.password = hashedPassword;
+  } else {
+    update.password = hashedPassword;
+  }
+});
 
 studentSchema.set("toJSON", {
   transform: (_doc, ret) => {
