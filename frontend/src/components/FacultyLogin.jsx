@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../api/client";
+import api, { TOKEN_KEY, USER_KEY } from "../api/client";
 
 function FacultyLogin({ setFacultyId }) {
   const [email, setEmail] = useState("");
@@ -17,11 +17,10 @@ function FacultyLogin({ setFacultyId }) {
 
     setLoading(true);
     try {
-      const res = await api.post("/api/faculty/login", {
-        email: email.trim().toLowerCase(),
-        password
-      });
-      if (!res.data?.facultyId) throw new Error("Invalid login response");
+      const res = await api.post("/api/faculty/login", { email: email.trim().toLowerCase(), password });
+      if (!res.data?.token || !res.data?.facultyId) throw new Error("Invalid login response");
+      localStorage.setItem(TOKEN_KEY, res.data.token);
+      localStorage.setItem(USER_KEY, JSON.stringify({ id: res.data.facultyId, role: "faculty" }));
       setFacultyId(res.data.facultyId);
     } catch (requestError) {
       setError(requestError.response?.data?.message || "Unable to sign in.");
@@ -33,25 +32,9 @@ function FacultyLogin({ setFacultyId }) {
   return (
     <form onSubmit={handleLogin}>
       <h2>Faculty Login</h2>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        autoComplete="username"
-        disabled={loading}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        autoComplete="current-password"
-        disabled={loading}
-      />
-      <button type="submit" disabled={loading}>
-        {loading ? "Signing in..." : "Login"}
-      </button>
+      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" disabled={loading} />
+      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" disabled={loading} />
+      <button type="submit" disabled={loading}>{loading ? "Signing in..." : "Login"}</button>
       {error && <p role="alert">{error}</p>}
     </form>
   );
