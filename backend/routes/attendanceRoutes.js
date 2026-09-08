@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { authenticate, requireRole } = require("../middleware/auth");
 
 const {
   markAttendance,
@@ -9,10 +10,11 @@ const {
   getAttendanceHistory
 } = require("../controllers/attendanceController");
 
-router.post("/", markAttendance);
-router.get("/", getAttendance);
+router.use(authenticate);
+router.post("/", requireRole("faculty"), markAttendance);
+router.get("/", requireRole("faculty"), getAttendance);
 router.get("/student/:id", getStudentAttendance);
 router.get("/history/:id", getAttendanceHistory);
-router.get("/report", getAttendanceReport);
+router.get("/report", requireRole("faculty"), getAttendanceReport);
 
 module.exports = router;
