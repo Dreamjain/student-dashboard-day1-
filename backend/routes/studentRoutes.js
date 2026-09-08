@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { authenticate, requireRole, requireSelf } = require("../middleware/auth");
 
 const {
   createStudent,
@@ -11,11 +12,12 @@ const {
   loginStudent
 } = require("../controllers/studentController");
 
-router.post("/", createStudent);
 router.post("/login", loginStudent);
-router.get("/summary/:id", getStudentSummary);
-router.get("/", getStudents);
-router.get("/:id", getStudentById);
-router.put("/:id", updateStudent);
-router.delete("/:id", deleteStudent);
+router.post("/", authenticate, requireRole("faculty"), createStudent);
+router.get("/summary/:id", authenticate, requireSelf("id"), getStudentSummary);
+router.get("/", authenticate, requireRole("faculty"), getStudents);
+router.get("/:id", authenticate, requireRole("faculty"), getStudentById);
+router.put("/:id", authenticate, requireRole("faculty"), updateStudent);
+router.delete("/:id", authenticate, requireRole("faculty"), deleteStudent);
+
 module.exports = router;
