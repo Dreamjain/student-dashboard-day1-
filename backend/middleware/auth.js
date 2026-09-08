@@ -30,4 +30,12 @@ const requireSelf = (paramName = "id") => (req, res, next) => {
   return next();
 };
 
-module.exports = { authenticate, requireRole, requireSelf };
+const requireSelfOrRole = (paramName, ...roles) => (req, res, next) => {
+  if (roles.includes(req.user?.role)) return next();
+  if (req.user?.role === "student" && String(req.user.id) === String(req.params[paramName])) {
+    return next();
+  }
+  return res.status(403).json({ message: "You do not have access to this student data" });
+};
+
+module.exports = { authenticate, requireRole, requireSelf, requireSelfOrRole };
