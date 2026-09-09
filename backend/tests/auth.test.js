@@ -37,14 +37,28 @@ test("authenticate accepts a valid Bearer JWT", () => {
   });
 
   assert.equal(nextCalled, true);
-  assert.deepEqual(req.user.id, "student-123");
+  assert.equal(req.user.id, "student-123");
   assert.equal(req.user.role, "student");
   assert.equal(res.statusCode, 200);
 });
 
-test("authenticate rejects missing, malformed, and invalid credentials", () => {
-  for (const authorization of [undefined, "Basic credentials", "Bearer", "Bearer invalid-token"]) {
-    const req = { headers: authorization ? { authorization } : {} };
+test("authenticate rejects a missing Authorization header", () => {
+  const req = { headers: {} };
+  const res = createResponse();
+  let nextCalled = false;
+
+  authenticate(req, res, () => {
+    nextCalled = true;
+  });
+
+  assert.equal(nextCalled, false);
+  assert.equal(res.statusCode, 401);
+  assert.equal(res.body.message, "Authentication required");
+});
+
+test("authenticate rejects malformed and invalid credentials", () => {
+  for (const authorization of ["Basic credentials", "Bearer", "Bearer invalid-token"]) {
+    const req = { headers: { authorization } };
     const res = createResponse();
     let nextCalled = false;
 
@@ -54,7 +68,7 @@ test("authenticate rejects missing, malformed, and invalid credentials", () => {
 
     assert.equal(nextCalled, false);
     assert.equal(res.statusCode, 401);
-    assert.equal(res.body.message, authorization === undefined ? "Authentication required" : "Invalid or expired token");
+    assert.equal(res.body.message, "Invalid or expired token");
   }
 });
 
