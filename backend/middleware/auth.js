@@ -2,14 +2,14 @@ const { verify } = require("../utils/jwt");
 
 const authenticate = (req, res, next) => {
   const authorization = req.headers.authorization || "";
-  const [scheme, token] = authorization.split(" ");
+  const match = authorization.match(/^Bearer\s+(\S+)$/);
 
-  if (scheme !== "Bearer" || !token) {
+  if (!match) {
     return res.status(401).json({ message: "Authentication required" });
   }
 
   try {
-    req.user = verify(token);
+    req.user = verify(match[1]);
     return next();
   } catch {
     return res.status(401).json({ message: "Invalid or expired token" });
