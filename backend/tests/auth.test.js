@@ -42,6 +42,20 @@ test("authenticate accepts a valid Bearer JWT", () => {
   assert.equal(res.statusCode, 200);
 });
 
+test("authenticate accepts a Bearer JWT with flexible whitespace", () => {
+  const token = sign({ id: "student-456", role: "student" });
+  const req = { headers: { authorization: `Bearer   ${token}` } };
+  const res = createResponse();
+  let nextCalled = false;
+
+  authenticate(req, res, () => {
+    nextCalled = true;
+  });
+
+  assert.equal(nextCalled, true);
+  assert.equal(req.user.id, "student-456");
+});
+
 test("authenticate rejects a missing Authorization header", () => {
   const req = { headers: {} };
   const res = createResponse();
@@ -57,7 +71,7 @@ test("authenticate rejects a missing Authorization header", () => {
 });
 
 test("authenticate rejects unsupported or incomplete authorization headers", () => {
-  for (const authorization of ["Basic credentials", "Bearer"]) {
+  for (const authorization of ["Basic credentials", "Bearer", "Bearer token extra"]) {
     const req = { headers: { authorization } };
     const res = createResponse();
     let nextCalled = false;
