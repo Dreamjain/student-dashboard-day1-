@@ -7,8 +7,12 @@ process.env.JWT_SECRET = "test-secret-that-is-at-least-32-characters-long";
 const { app } = require("../server");
 const { sign } = require("../utils/jwt");
 
+const startTestServer = () => new Promise((resolve) => {
+  const server = app.listen(0, () => resolve(server));
+});
+
 const request = (server, { method, path, token } = {}) => new Promise((resolve, reject) => {
-  const req = http.request(server, {
+  const req = http.request({
     hostname: "127.0.0.1",
     port: server.address().port,
     method,
@@ -24,7 +28,7 @@ const request = (server, { method, path, token } = {}) => new Promise((resolve, 
 });
 
 test("protected routes reject unauthenticated requests", async (t) => {
-  const server = app.listen(0);
+  const server = await startTestServer();
   t.after(() => server.close());
 
   const protectedRoutes = [
@@ -51,7 +55,7 @@ test("protected routes reject unauthenticated requests", async (t) => {
 });
 
 test("student tokens cannot access faculty-only routes", async (t) => {
-  const server = app.listen(0);
+  const server = await startTestServer();
   t.after(() => server.close());
 
   const studentToken = sign({ id: "student-123", role: "student" });
@@ -76,7 +80,7 @@ test("student tokens cannot access faculty-only routes", async (t) => {
 });
 
 test("students cannot access another student's protected data", async (t) => {
-  const server = app.listen(0);
+  const server = await startTestServer();
   t.after(() => server.close());
 
   const studentToken = sign({ id: "student-123", role: "student" });
