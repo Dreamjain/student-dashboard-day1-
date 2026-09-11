@@ -9,6 +9,8 @@ const { sign } = require("../utils/jwt");
 
 const request = (server, { method, path, token } = {}) => new Promise((resolve, reject) => {
   const req = http.request(server, {
+    hostname: "127.0.0.1",
+    port: server.address().port,
     method,
     path,
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
