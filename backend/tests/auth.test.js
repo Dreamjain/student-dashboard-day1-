@@ -42,9 +42,9 @@ test("authenticate accepts a valid Bearer JWT", () => {
   assert.equal(res.statusCode, 200);
 });
 
-test("authenticate accepts a Bearer JWT with flexible whitespace", () => {
+test("authenticate accepts a Bearer JWT with flexible whitespace and casing", () => {
   const token = sign({ id: "student-456", role: "student" });
-  const req = { headers: { authorization: `Bearer   ${token}` } };
+  const req = { headers: { authorization: `bEaReR   ${token}` } };
   const res = createResponse();
   let nextCalled = false;
 
