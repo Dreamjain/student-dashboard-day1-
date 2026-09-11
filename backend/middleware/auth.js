@@ -2,7 +2,7 @@ const { verify } = require("../utils/jwt");
 
 const authenticate = (req, res, next) => {
   const authorization = req.headers.authorization || "";
-  const match = authorization.match(/^Bearer\s+(\S+)$/);
+  const match = authorization.match(/^Bearer\s+(\S+)$/i);
 
   if (!match) {
     return res.status(401).json({ message: "Authentication required" });
