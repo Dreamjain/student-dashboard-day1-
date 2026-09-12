@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
+const { buildCorsOptions } = require("./utils/cors");
 const studentRoutes = require("./routes/studentRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const marksRoutes = require("./routes/marksRoutes");
@@ -11,10 +12,9 @@ const facultyRoutes = require("./routes/facultyRoutes");
 
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
-const allowedOrigin = process.env.CLIENT_ORIGIN;
 
 app.disable("x-powered-by");
-app.use(cors(allowedOrigin ? { origin: allowedOrigin } : undefined));
+app.use(cors(buildCorsOptions()));
 app.use(express.json({ limit: "100kb" }));
 
 app.get("/", (_req, res) => {
