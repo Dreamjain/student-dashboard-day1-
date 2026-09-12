@@ -3,16 +3,21 @@ const Attendance = require("../models/attendanceModel");
 const Marks = require("../models/marksModel");
 const { verifyPassword } = require("../utils/password");
 const { sign } = require("../utils/jwt");
+const { validateCredentials, validateStudentInput } = require("../utils/validation");
 
 const handleError = (res, error) => {
   if (error.name === "ValidationError") return res.status(400).json({ message: error.message });
   if (error.name === "CastError") return res.status(400).json({ message: "Invalid student id" });
+  if (error.code === 11000) return res.status(409).json({ message: "Roll number already exists" });
   console.error(error);
   return res.status(500).json({ message: "Internal server error" });
 };
 
 exports.createStudent = async (req, res) => {
-  try { res.status(201).json(await Student.create(req.body)); } catch (error) { handleError(res, error); }
+  const validation = validateStudentInput(req.body);
+  if (!validation.valid) return res.status(400).json({ message: validation.message });
+
+  try { res.status(201).json(await Student.create(validation.data)); } catch (error) { handleError(res, error); }
 };
 
 exports.getStudents = async (req, res) => {
@@ -69,12 +74,12 @@ exports.getStudentSummary = async (req, res) => {
 };
 
 exports.loginStudent = async (req, res) => {
-  try {
-    const { rollNumber, password } = req.body;
-    if (!rollNumber || !password) return res.status(400).json({ message: "Roll number and password are required" });
+  const validation = validateCredentials(req.body);
+  if (!validation.valid) return res.status(400).json({ message: validation.message });
 
-    const student = await Student.findOne({ rollNumber }).select("+password");
-    if (!student || !(await verifyPassword(password, student.password))) {
+  try {
+    const student = await Student.findOne({ rollNumber: validation.rollNumber }).select("+password");
+    if (!student || !(await verifyPassword(validation.password, student.password))) {
       return res.status(401).json({ message: "Invalid roll number or password" });
     }
 
