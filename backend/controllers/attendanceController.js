@@ -53,7 +53,9 @@ const getStudentAttendance = async (req, res) => {
 
 const getAttendance = async (_req, res) => {
   try {
-    const records = await Attendance.find().populate("studentId").sort({ date: -1 });
+    const records = await Attendance.find()
+      .populate("studentId", "name rollNumber department year")
+      .sort({ date: -1 });
     res.json(records);
   } catch (error) {
     console.error("Error fetching attendance:", error);
