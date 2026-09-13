@@ -1,31 +1,18 @@
 const mongoose = require("mongoose");
 const Attendance = require("../models/attendanceModel");
+const { validateAttendanceInput } = require("../utils/validation");
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const markAttendance = async (req, res) => {
   try {
-    const { studentId, date, status, subject } = req.body;
-
-    if (!studentId || !isValidId(studentId)) {
+    const validation = validateAttendanceInput(req.body);
+    if (!validation.valid) return res.status(400).json({ message: validation.message });
+    if (!isValidId(validation.data.studentId)) {
       return res.status(400).json({ message: "A valid studentId is required" });
     }
-    if (!subject || typeof subject !== "string" || !subject.trim()) {
-      return res.status(400).json({ message: "Subject is required" });
-    }
-    if (!["present", "absent"].includes(String(status).toLowerCase())) {
-      return res.status(400).json({ message: "Status must be present or absent" });
-    }
-    if (!date || Number.isNaN(new Date(date).getTime())) {
-      return res.status(400).json({ message: "A valid date is required" });
-    }
 
-    const attendance = new Attendance({
-      studentId,
-      date,
-      subject: subject.trim(),
-      status: String(status).toLowerCase()
-    });
+    const attendance = new Attendance(validation.data);
     const savedAttendance = await attendance.save();
     res.status(201).json(savedAttendance);
   } catch (error) {
