@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const { buildCorsOptions } = require("./utils/cors");
+const errorHandler = require("./middleware/errorHandler");
 const studentRoutes = require("./routes/studentRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const marksRoutes = require("./routes/marksRoutes");
@@ -35,13 +36,7 @@ app.use((_req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-app.use((err, _req, res, _next) => {
-  console.error("Unhandled request error:", err);
-  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
-    return res.status(400).json({ message: "Invalid JSON payload" });
-  }
-  return res.status(500).json({ message: "Internal server error" });
-});
+app.use(errorHandler);
 
 const startServer = async () => {
   try {
