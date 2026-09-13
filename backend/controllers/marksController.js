@@ -1,24 +1,18 @@
 const mongoose = require("mongoose");
 const Marks = require("../models/marksModel");
+const { validateMarksInput } = require("../utils/validation");
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const addMarks = async (req, res) => {
   try {
-    const { studentId, subject, score } = req.body;
-    const numericScore = Number(score);
-
-    if (!studentId || !isValidId(studentId)) {
+    const validation = validateMarksInput(req.body);
+    if (!validation.valid) return res.status(400).json({ message: validation.message });
+    if (!isValidId(validation.data.studentId)) {
       return res.status(400).json({ message: "A valid studentId is required" });
     }
-    if (!subject || typeof subject !== "string" || !subject.trim()) {
-      return res.status(400).json({ message: "Subject is required" });
-    }
-    if (!Number.isFinite(numericScore) || numericScore < 0 || numericScore > 100) {
-      return res.status(400).json({ message: "Score must be a number between 0 and 100" });
-    }
 
-    const marks = new Marks({ studentId, subject: subject.trim(), score: numericScore });
+    const marks = new Marks(validation.data);
     const savedMarks = await marks.save();
     res.status(201).json(savedMarks);
   } catch (error) {
