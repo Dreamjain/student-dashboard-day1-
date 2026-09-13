@@ -54,4 +54,57 @@ const validateStudentInput = ({ name, rollNumber, department, year, password } =
   };
 };
 
-module.exports = { normalizeRollNumber, validateCredentials, validateStudentInput };
+const validateMarksInput = ({ studentId, subject, score } = {}) => {
+  const normalizedSubject = String(subject ?? "").trim();
+  const numericScore = Number(score);
+
+  if (!studentId || !normalizedSubject || score === undefined || score === null) {
+    return { valid: false, message: "Student id, subject, and score are required" };
+  }
+
+  if (normalizedSubject.length < 2 || normalizedSubject.length > 80) {
+    return { valid: false, message: "Subject must be between 2 and 80 characters" };
+  }
+
+  if (!Number.isFinite(numericScore) || numericScore < 0 || numericScore > 100) {
+    return { valid: false, message: "Score must be a number between 0 and 100" };
+  }
+
+  return { valid: true, data: { studentId, subject: normalizedSubject, score: numericScore } };
+};
+
+const validateAttendanceInput = ({ studentId, date, status, subject } = {}) => {
+  const normalizedSubject = String(subject ?? "").trim();
+  const normalizedStatus = String(status ?? "").trim().toLowerCase();
+  const parsedDate = new Date(date);
+
+  if (!studentId || !normalizedSubject || !date || !normalizedStatus) {
+    return { valid: false, message: "Student id, date, subject, and status are required" };
+  }
+
+  if (normalizedSubject.length < 2 || normalizedSubject.length > 80) {
+    return { valid: false, message: "Subject must be between 2 and 80 characters" };
+  }
+
+  if (!["present", "absent"].includes(normalizedStatus)) {
+    return { valid: false, message: "Status must be present or absent" };
+  }
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return { valid: false, message: "A valid date is required" };
+  }
+
+  if (parsedDate > new Date()) {
+    return { valid: false, message: "Attendance date cannot be in the future" };
+  }
+
+  return { valid: true, data: { studentId, date, subject: normalizedSubject, status: normalizedStatus } };
+};
+
+module.exports = {
+  normalizeRollNumber,
+  validateCredentials,
+  validateStudentInput,
+  validateMarksInput,
+  validateAttendanceInput,
+};
