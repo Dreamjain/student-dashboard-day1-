@@ -4,6 +4,8 @@ const {
   normalizeRollNumber,
   validateCredentials,
   validateStudentInput,
+  validateMarksInput,
+  validateAttendanceInput,
 } = require("../utils/validation");
 
 test("normalizeRollNumber trims whitespace and normalizes casing", () => {
@@ -62,5 +64,46 @@ test("validateStudentInput returns sanitized student data", () => {
       year: 3,
       password: "password123",
     },
+  });
+});
+
+test("validateMarksInput rejects scores outside the 0-100 range", () => {
+  const result = validateMarksInput({ studentId: "507f1f77bcf86cd799439011", subject: "DBMS", score: 101 });
+  assert.equal(result.valid, false);
+  assert.equal(result.message, "Score must be a number between 0 and 100");
+});
+
+test("validateMarksInput trims subjects and normalizes numeric scores", () => {
+  const result = validateMarksInput({ studentId: "507f1f77bcf86cd799439011", subject: "  DBMS ", score: "88" });
+  assert.deepEqual(result, {
+    valid: true,
+    data: { studentId: "507f1f77bcf86cd799439011", subject: "DBMS", score: 88 },
+  });
+});
+
+test("validateAttendanceInput rejects future attendance dates", () => {
+  const result = validateAttendanceInput({
+    studentId: "507f1f77bcf86cd799439011",
+    date: "2099-01-01",
+    subject: "DBMS",
+    status: "present",
+  });
+  assert.equal(result.valid, false);
+  assert.equal(result.message, "Attendance date cannot be in the future");
+});
+
+test("validateAttendanceInput normalizes status and subject", () => {
+  const result = validateAttendanceInput({
+    studentId: "507f1f77bcf86cd799439011",
+    date: "2026-09-01",
+    subject: "  DBMS ",
+    status: "PRESENT",
+  });
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.data, {
+    studentId: "507f1f77bcf86cd799439011",
+    date: "2026-09-01",
+    subject: "DBMS",
+    status: "present",
   });
 });
