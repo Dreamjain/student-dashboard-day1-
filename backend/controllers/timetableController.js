@@ -1,22 +1,14 @@
 const Timetable = require("../models/timetableModel");
 
 const addTimetable = async (req, res) => {
-  try {
-    const timetable = new Timetable(req.body);
-    const savedTimetable = await timetable.save();
-    res.status(201).json(savedTimetable);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  const timetable = new Timetable(req.body);
+  const savedTimetable = await timetable.save();
+  res.status(201).json(savedTimetable);
 };
 
-const getTimetable = async (req, res) => {
-  try {
-    const timetable = await Timetable.find().sort({ day: 1 });
-    res.json(timetable);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+const getTimetable = async (_req, res) => {
+  const timetable = await Timetable.find().sort({ day: 1 });
+  res.json(timetable);
 };
 
 module.exports = {
