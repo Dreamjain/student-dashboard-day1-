@@ -5,94 +5,79 @@ const { verifyPassword } = require("../utils/password");
 const { sign } = require("../utils/jwt");
 const { validateCredentials, validateStudentInput } = require("../utils/validation");
 
-const handleError = (res, error) => {
-  if (error.name === "ValidationError") return res.status(400).json({ message: error.message });
-  if (error.name === "CastError") return res.status(400).json({ message: "Invalid student id" });
-  if (error.code === 11000) return res.status(409).json({ message: "Roll number already exists" });
-  console.error(error);
-  return res.status(500).json({ message: "Internal server error" });
-};
-
 exports.createStudent = async (req, res) => {
   const validation = validateStudentInput(req.body);
   if (!validation.valid) return res.status(400).json({ message: validation.message });
 
-  try { res.status(201).json(await Student.create(validation.data)); } catch (error) { handleError(res, error); }
+  res.status(201).json(await Student.create(validation.data));
 };
 
 exports.getStudents = async (req, res) => {
-  try { res.json(await Student.find().sort({ rollNumber: 1 })); } catch (error) { handleError(res, error); }
+  res.json(await Student.find().sort({ rollNumber: 1 }));
 };
 
 exports.getStudentById = async (req, res) => {
-  try {
-    const student = await Student.findById(req.params.id);
-    if (!student) return res.status(404).json({ message: "Student not found" });
-    res.json(student);
-  } catch (error) { handleError(res, error); }
+  const student = await Student.findById(req.params.id);
+  if (!student) return res.status(404).json({ message: "Student not found" });
+  res.json(student);
 };
 
 exports.updateStudent = async (req, res) => {
-  try {
-    const updatedStudent = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!updatedStudent) return res.status(404).json({ message: "Student not found" });
-    res.json(updatedStudent);
-  } catch (error) { handleError(res, error); }
+  const updatedStudent = await Student.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true
+  });
+  if (!updatedStudent) return res.status(404).json({ message: "Student not found" });
+  res.json(updatedStudent);
 };
 
 exports.deleteStudent = async (req, res) => {
-  try {
-    const deletedStudent = await Student.findByIdAndDelete(req.params.id);
-    if (!deletedStudent) return res.status(404).json({ message: "Student not found" });
-    res.json({ message: "Student deleted successfully" });
-  } catch (error) { handleError(res, error); }
+  const deletedStudent = await Student.findByIdAndDelete(req.params.id);
+  if (!deletedStudent) return res.status(404).json({ message: "Student not found" });
+  res.json({ message: "Student deleted successfully" });
 };
 
 exports.getStudentSummary = async (req, res) => {
-  try {
-    const { id: studentId } = req.params;
-    const student = await Student.findById(studentId).select("name");
-    if (!student) return res.status(404).json({ message: "Student not found" });
+  const { id: studentId } = req.params;
+  const student = await Student.findById(studentId).select("name");
+  if (!student) return res.status(404).json({ message: "Student not found" });
 
-    const [attendanceRecords, marksRecords] = await Promise.all([
-      Attendance.find({ studentId }).select("status -_id"),
-      Marks.find({ studentId }).select("score -_id")
-    ]);
+  const [attendanceRecords, marksRecords] = await Promise.all([
+    Attendance.find({ studentId }).select("status -_id"),
+    Marks.find({ studentId }).select("score -_id")
+  ]);
 
-    const totalClasses = attendanceRecords.length;
-    const present = attendanceRecords.filter((record) => record.status === "present").length;
-    const attendancePercentage = totalClasses === 0 ? 0 : (present / totalClasses) * 100;
-    const totalMarks = marksRecords.reduce((sum, mark) => sum + mark.score, 0);
-    const averageMarks = marksRecords.length === 0 ? 0 : totalMarks / marksRecords.length;
+  const totalClasses = attendanceRecords.length;
+  const present = attendanceRecords.filter((record) => record.status === "present").length;
+  const attendancePercentage = totalClasses === 0 ? 0 : (present / totalClasses) * 100;
+  const totalMarks = marksRecords.reduce((sum, mark) => sum + mark.score, 0);
+  const averageMarks = marksRecords.length === 0 ? 0 : totalMarks / marksRecords.length;
 
-    res.json({
-      name: student.name,
-      attendancePercentage: Number(attendancePercentage.toFixed(2)),
-      averageMarks: Number(averageMarks.toFixed(2))
-    });
-  } catch (error) { handleError(res, error); }
+  res.json({
+    name: student.name,
+    attendancePercentage: Number(attendancePercentage.toFixed(2)),
+    averageMarks: Number(averageMarks.toFixed(2))
+  });
 };
 
 exports.loginStudent = async (req, res) => {
   const validation = validateCredentials(req.body);
   if (!validation.valid) return res.status(400).json({ message: validation.message });
 
-  try {
-    const student = await Student.findOne({ rollNumber: validation.rollNumber }).select("+password");
-    if (!student || !(await verifyPassword(validation.password, student.password))) {
-      return res.status(401).json({ message: "Invalid roll number or password" });
-    }
+  const student = await Student.findOne({ rollNumber: validation.rollNumber }).select("+password");
+  if (!student || !(await verifyPassword(validation.password, student.password))) {
+    return res.status(401).json({ message: "Invalid roll number or password" });
+  }
 
-    const token = sign({ id: String(student._id), role: "student" });
-    res.json({
-      token,
-      user: {
-        id: student._id,
-        name: student.name,
-        rollNumber: student.rollNumber,
-        department: student.department,
-        year: student.year
-      }
-    });
-  } catch (error) { handleError(res, error); }
+  const token = sign({ id: String(student._id), role: "student" });
+  res.json({
+    token,
+    user: {
+      id: student._id,
+      name: student.name,
+      rollNumber: student.rollNumber,
+      department: student.department,
+      year: student.year
+    }
+  });
 };
