@@ -19,7 +19,10 @@ const getStudentMarks = async (req, res) => {
   const { id: studentId } = req.params;
   if (!isValidId(studentId)) return res.status(400).json({ message: "Invalid student id" });
 
-  const marks = await Marks.find({ studentId }).select("subject score createdAt").sort({ createdAt: -1 });
+  const marks = await Marks.find({ studentId })
+    .select("subject score createdAt")
+    .sort({ createdAt: -1 })
+    .lean();
   res.json(marks);
 };
 
