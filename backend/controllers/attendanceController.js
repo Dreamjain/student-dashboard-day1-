@@ -5,82 +5,56 @@ const { validateAttendanceInput } = require("../utils/validation");
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const markAttendance = async (req, res) => {
-  try {
-    const validation = validateAttendanceInput(req.body);
-    if (!validation.valid) return res.status(400).json({ message: validation.message });
-    if (!isValidId(validation.data.studentId)) {
-      return res.status(400).json({ message: "A valid studentId is required" });
-    }
-
-    const attendance = new Attendance(validation.data);
-    const savedAttendance = await attendance.save();
-    res.status(201).json(savedAttendance);
-  } catch (error) {
-    console.error("Error marking attendance:", error);
-    res.status(500).json({ message: "Unable to save attendance" });
+  const validation = validateAttendanceInput(req.body);
+  if (!validation.valid) return res.status(400).json({ message: validation.message });
+  if (!isValidId(validation.data.studentId)) {
+    return res.status(400).json({ message: "A valid studentId is required" });
   }
+
+  const attendance = await Attendance.create(validation.data);
+  res.status(201).json(attendance);
 };
 
 const getStudentAttendance = async (req, res) => {
-  try {
-    const { id: studentId } = req.params;
-    if (!isValidId(studentId)) return res.status(400).json({ message: "Invalid student id" });
+  const { id: studentId } = req.params;
+  if (!isValidId(studentId)) return res.status(400).json({ message: "Invalid student id" });
 
-    const records = await Attendance.find({ studentId });
-    const totalClasses = records.length;
-    const present = records.filter((record) => record.status === "present").length;
-    const percentage = totalClasses === 0 ? 0 : (present / totalClasses) * 100;
+  const records = await Attendance.find({ studentId });
+  const totalClasses = records.length;
+  const present = records.filter((record) => record.status === "present").length;
+  const percentage = totalClasses === 0 ? 0 : (present / totalClasses) * 100;
 
-    res.json({ studentId, totalClasses, present, percentage: Number(percentage.toFixed(2)) });
-  } catch (error) {
-    console.error("Error fetching attendance:", error);
-    res.status(500).json({ message: "Unable to fetch attendance" });
-  }
+  res.json({ studentId, totalClasses, present, percentage: Number(percentage.toFixed(2)) });
 };
 
 const getAttendance = async (_req, res) => {
-  try {
-    const records = await Attendance.find()
-      .populate("studentId", "name rollNumber department year")
-      .sort({ date: -1 });
-    res.json(records);
-  } catch (error) {
-    console.error("Error fetching attendance:", error);
-    res.status(500).json({ message: "Unable to fetch attendance" });
-  }
+  const records = await Attendance.find()
+    .populate("studentId", "name rollNumber department year")
+    .sort({ date: -1 });
+  res.json(records);
 };
 
 const getAttendanceReport = async (_req, res) => {
-  try {
-    const students = await Attendance.aggregate([
-      {
-        $group: {
-          _id: "$studentId",
-          totalClasses: { $sum: 1 },
-          present: { $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] } }
-        }
+  const students = await Attendance.aggregate([
+    {
+      $group: {
+        _id: "$studentId",
+        totalClasses: { $sum: 1 },
+        present: { $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] } }
       }
-    ]);
-    res.json(students);
-  } catch (error) {
-    console.error("Error creating attendance report:", error);
-    res.status(500).json({ message: "Unable to create attendance report" });
-  }
+    }
+  ]);
+  res.json(students);
 };
 
 const getAttendanceHistory = async (req, res) => {
-  try {
-    const { id: studentId } = req.params;
-    if (!isValidId(studentId)) return res.status(400).json({ message: "Invalid student id" });
+  const { id: studentId } = req.params;
+  if (!isValidId(studentId)) return res.status(400).json({ message: "Invalid student id" });
 
-    const records = await Attendance.find({ studentId })
-      .select("date status subject")
-      .sort({ date: -1 });
-    res.json(records);
-  } catch (error) {
-    console.error("Error fetching attendance history:", error);
-    res.status(500).json({ message: "Unable to fetch attendance history" });
-  }
+  const records = await Attendance.find({ studentId })
+    .select("date status subject")
+    .sort({ date: -1 });
+  res.json(records);
 };
 
 module.exports = {
