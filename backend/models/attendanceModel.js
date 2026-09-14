@@ -5,7 +5,8 @@ const attendanceSchema = new mongoose.Schema(
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Student",
-      required: true
+      required: true,
+      index: true
     },
     subject: {
       type: String,
@@ -28,6 +29,8 @@ const attendanceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Prevent duplicate attendance entries for the same student, subject and date.
+attendanceSchema.index({ studentId: 1, subject: 1, date: 1 }, { unique: true });
 attendanceSchema.index({ studentId: 1, date: -1 });
 
 module.exports = mongoose.model("Attendance", attendanceSchema);
