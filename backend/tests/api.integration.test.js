@@ -37,6 +37,68 @@ const authRequest = (path, token, options = {}) => request(path, {
   }
 });
 
+test.before(async () => {
+  server = app.listen(0);
+  await new Promise((resolve) => server.once("listening", resolve));
+  const { port } = server.address();
+  baseUrl = `http://127.0.0.1:${port}`;
+
+  if (!hasMongo) return;
+
+  await mongoose.connect(process.env.MONGO_URI);
+  await Promise.all([
+    Student.deleteMany({ rollNumber: /^INTEGRATION-/ }),
+    Faculty.deleteMany({ email: /@integration\.test$/ }),
+    Marks.deleteMany({}),
+    Attendance.deleteMany({}),
+    Timetable.deleteMany({})
+  ]);
+
+  [student, otherStudent] = await Student.create([
+    {
+      name: "Integration Student",
+      rollNumber: "INTEGRATION-STUDENT",
+      department: "CSE",
+      year: 3,
+      password: "studentpass123"
+    },
+    {
+      name: "Other Integration Student",
+      rollNumber: "INTEGRATION-OTHER",
+      department: "CSE",
+      year: 2,
+      password: "studentpass123"
+    }
+  ]);
+
+  const faculty = await Faculty.create({
+    name: "Integration Faculty",
+    email: "faculty@integration.test",
+    password: "facultypass123"
+  });
+
+  const studentLogin = await jsonRequest("/students/login", "POST", {
+    rollNumber: "integration-student",
+    password: "studentpass123"
+  });
+  assert.equal(studentLogin.status, 200);
+  studentToken = (await studentLogin.json()).token;
+
+  const facultyLogin = await jsonRequest("/api/faculty/login", "POST", {
+    email: faculty.email,
+    password: "facultypass123"
+  });
+  assert.equal(facultyLogin.status, 200);
+  facultyToken = (await facultyLogin.json()).token;
+});
+
+test.after(async () => {
+  if (server) {
+    await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
+  }
+  if (hasMongo) await mongoose.disconnect();
+});
+
 test("GET /health returns a healthy service response", async () => {
   const response = await request("/health");
   assert.equal(response.status, 200);
@@ -73,66 +135,6 @@ test("malformed JSON is rejected by the API middleware stack", async () => {
 
   assert.equal(response.status, 400);
   assert.deepEqual(await response.json(), { message: "Invalid JSON payload" });
-});
-
-integrationTest.before(async () => {
-  await mongoose.connect(process.env.MONGO_URI);
-  await Promise.all([
-    Student.deleteMany({ rollNumber: /^INTEGRATION-/ }),
-    Faculty.deleteMany({ email: /@integration\.test$/ }),
-    Marks.deleteMany({}),
-    Attendance.deleteMany({}),
-    Timetable.deleteMany({})
-  ]);
-
-  [student, otherStudent] = await Student.create([
-    {
-      name: "Integration Student",
-      rollNumber: "INTEGRATION-STUDENT",
-      department: "CSE",
-      year: 3,
-      password: "studentpass123"
-    },
-    {
-      name: "Other Integration Student",
-      rollNumber: "INTEGRATION-OTHER",
-      department: "CSE",
-      year: 2,
-      password: "studentpass123"
-    }
-  ]);
-
-  const faculty = await Faculty.create({
-    name: "Integration Faculty",
-    email: "faculty@integration.test",
-    password: "facultypass123"
-  });
-
-  server = app.listen(0);
-  await new Promise((resolve) => server.once("listening", resolve));
-  const { port } = server.address();
-  baseUrl = `http://127.0.0.1:${port}`;
-
-  const studentLogin = await jsonRequest("/students/login", "POST", {
-    rollNumber: "integration-student",
-    password: "studentpass123"
-  });
-  assert.equal(studentLogin.status, 200);
-  studentToken = (await studentLogin.json()).token;
-
-  const facultyLogin = await jsonRequest("/api/faculty/login", "POST", {
-    email: faculty.email,
-    password: "facultypass123"
-  });
-  assert.equal(facultyLogin.status, 200);
-  facultyToken = (await facultyLogin.json()).token;
-});
-
-integrationTest.after(async () => {
-  if (server) {
-    await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
-  }
-  await mongoose.disconnect();
 });
 
 integrationTest("student login returns a JWT and safe user payload", async () => {
