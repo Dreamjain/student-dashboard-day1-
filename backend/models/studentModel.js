@@ -39,13 +39,12 @@ const studentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-studentSchema.pre("save", async function hashStudentPassword(next) {
+studentSchema.pre("save", async function hashStudentPassword() {
   if (!this.isModified("password") || isPasswordHash(this.password)) {
-    return next();
+    return;
   }
 
   this.password = await hashPassword(this.password);
-  return next();
 });
 
 studentSchema.pre("findOneAndUpdate", async function hashUpdatedStudentPassword() {
