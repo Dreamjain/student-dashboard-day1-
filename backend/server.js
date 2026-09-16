@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const { buildCorsOptions } = require("./utils/cors");
+const securityHeaders = require("./middleware/securityHeaders");
 const errorHandler = require("./middleware/errorHandler");
 const studentRoutes = require("./routes/studentRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
@@ -15,6 +16,7 @@ const app = express();
 const PORT = Number(process.env.PORT) || 5000;
 
 app.disable("x-powered-by");
+app.use(securityHeaders);
 app.use(cors(buildCorsOptions()));
 app.use(express.json({ limit: "100kb" }));
 
