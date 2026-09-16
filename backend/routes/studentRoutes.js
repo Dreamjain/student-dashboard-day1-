@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { authenticate, requireRole, requireSelf } = require("../middleware/auth");
+const { loginRateLimiter } = require("../middleware/rateLimiter");
 
 const {
   createStudent,
@@ -12,7 +13,7 @@ const {
   loginStudent
 } = require("../controllers/studentController");
 
-router.post("/login", loginStudent);
+router.post("/login", loginRateLimiter, loginStudent);
 router.post("/", authenticate, requireRole("faculty"), createStudent);
 router.get("/summary/:id", authenticate, requireSelf("id"), getStudentSummary);
 router.get("/", authenticate, requireRole("faculty"), getStudents);
