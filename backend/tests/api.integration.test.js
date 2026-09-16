@@ -1,22 +1,41 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const mongoose = require("mongoose");
 const { app } = require("../server");
+const Student = require("../models/studentModel");
+const Faculty = require("../models/facultyModel");
+const Marks = require("../models/marksModel");
+const Attendance = require("../models/attendanceModel");
+const Timetable = require("../models/timetableModel");
+
+const hasMongo = Boolean(process.env.MONGO_URI);
+const integrationTest = hasMongo ? test : test.skip;
 
 let server;
 let baseUrl;
-
-test.before(async () => {
-  server = app.listen(0);
-  await new Promise((resolve) => server.once("listening", resolve));
-  const { port } = server.address();
-  baseUrl = `http://127.0.0.1:${port}`;
-});
-
-test.after(async () => {
-  await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
-});
+let student;
+let otherStudent;
+let studentToken;
+let facultyToken;
 
 const request = (path, options) => fetch(`${baseUrl}${path}`, options);
+
+const jsonRequest = (path, method, body, token) => request(path, {
+  method,
+  headers: {
+    "content-type": "application/json",
+    ...(token ? { authorization: `Bearer ${token}` } : {})
+  },
+  body: JSON.stringify(body)
+});
+
+const authRequest = (path, token, options = {}) => request(path, {
+  ...options,
+  headers: {
+    ...(options.headers || {}),
+    authorization: `Bearer ${token}`
+  }
+});
 
 test("GET /health returns a healthy service response", async () => {
   const response = await request("/health");
@@ -54,4 +73,218 @@ test("malformed JSON is rejected by the API middleware stack", async () => {
 
   assert.equal(response.status, 400);
   assert.deepEqual(await response.json(), { message: "Invalid JSON payload" });
+});
+
+integrationTest.before(async () => {
+  await mongoose.connect(process.env.MONGO_URI);
+  await Promise.all([
+    Student.deleteMany({ rollNumber: /^INTEGRATION-/ }),
+    Faculty.deleteMany({ email: /@integration\.test$/ }),
+    Marks.deleteMany({}),
+    Attendance.deleteMany({}),
+    Timetable.deleteMany({})
+  ]);
+
+  [student, otherStudent] = await Student.create([
+    {
+      name: "Integration Student",
+      rollNumber: "INTEGRATION-STUDENT",
+      department: "CSE",
+      year: 3,
+      password: "studentpass123"
+    },
+    {
+      name: "Other Integration Student",
+      rollNumber: "INTEGRATION-OTHER",
+      department: "CSE",
+      year: 2,
+      password: "studentpass123"
+    }
+  ]);
+
+  const faculty = await Faculty.create({
+    name: "Integration Faculty",
+    email: "faculty@integration.test",
+    password: "facultypass123"
+  });
+
+  server = app.listen(0);
+  await new Promise((resolve) => server.once("listening", resolve));
+  const { port } = server.address();
+  baseUrl = `http://127.0.0.1:${port}`;
+
+  const studentLogin = await jsonRequest("/students/login", "POST", {
+    rollNumber: "integration-student",
+    password: "studentpass123"
+  });
+  assert.equal(studentLogin.status, 200);
+  studentToken = (await studentLogin.json()).token;
+
+  const facultyLogin = await jsonRequest("/api/faculty/login", "POST", {
+    email: faculty.email,
+    password: "facultypass123"
+  });
+  assert.equal(facultyLogin.status, 200);
+  facultyToken = (await facultyLogin.json()).token;
+});
+
+integrationTest.after(async () => {
+  if (server) {
+    await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
+  }
+  await mongoose.disconnect();
+});
+
+integrationTest("student login returns a JWT and safe user payload", async () => {
+  const response = await jsonRequest("/students/login", "POST", {
+    rollNumber: "INTEGRATION-STUDENT",
+    password: "studentpass123"
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.ok(body.token);
+  assert.equal(body.user.rollNumber, "INTEGRATION-STUDENT");
+  assert.equal(body.user.password, undefined);
+});
+
+integrationTest("student JWT can access its own summary but not another student's summary", async () => {
+  const ownResponse = await authRequest(`/students/summary/${student._id}`, studentToken);
+  assert.equal(ownResponse.status, 200);
+  assert.deepEqual(await ownResponse.json(), {
+    name: "Integration Student",
+    attendancePercentage: 0,
+    averageMarks: 0
+  });
+
+  const otherResponse = await authRequest(`/students/summary/${otherStudent._id}`, studentToken);
+  assert.equal(otherResponse.status, 403);
+});
+
+integrationTest("faculty JWT can list students while student JWT is forbidden", async () => {
+  const facultyResponse = await authRequest("/students", facultyToken);
+  assert.equal(facultyResponse.status, 200);
+  assert.equal((await facultyResponse.json()).length, 2);
+
+  const studentResponse = await authRequest("/students", studentToken);
+  assert.equal(studentResponse.status, 403);
+});
+
+integrationTest("faculty can create, update, and delete a student through the API", async () => {
+  const createResponse = await jsonRequest("/students", "POST", {
+    name: "CRUD Integration Student",
+    rollNumber: "INTEGRATION-CRUD",
+    department: "ECE",
+    year: 1,
+    password: "crudpass123"
+  }, facultyToken);
+  assert.equal(createResponse.status, 201);
+  const created = await createResponse.json();
+  assert.equal(created.rollNumber, "INTEGRATION-CRUD");
+  assert.equal(created.password, undefined);
+
+  const updateResponse = await jsonRequest(`/students/${created._id}`, "PUT", {
+    department: "CSE"
+  }, facultyToken);
+  assert.equal(updateResponse.status, 200);
+  assert.equal((await updateResponse.json()).department, "CSE");
+
+  const deleteResponse = await authRequest(`/students/${created._id}`, facultyToken, { method: "DELETE" });
+  assert.equal(deleteResponse.status, 200);
+  assert.deepEqual(await deleteResponse.json(), { message: "Student deleted successfully" });
+});
+
+integrationTest("marks API supports create, read, duplicate protection, and validation", async () => {
+  const createResponse = await jsonRequest("/marks", "POST", {
+    studentId: String(student._id),
+    subject: "Database Systems",
+    score: 91
+  }, facultyToken);
+  assert.equal(createResponse.status, 201);
+
+  const readResponse = await authRequest(`/marks/student/${student._id}`, studentToken);
+  assert.equal(readResponse.status, 200);
+  assert.equal((await readResponse.json())[0].score, 91);
+
+  const duplicateResponse = await jsonRequest("/marks", "POST", {
+    studentId: String(student._id),
+    subject: "Database Systems",
+    score: 88
+  }, facultyToken);
+  assert.equal(duplicateResponse.status, 409);
+  assert.deepEqual(await duplicateResponse.json(), { message: "Resource already exists" });
+
+  const invalidResponse = await jsonRequest("/marks", "POST", {
+    studentId: String(student._id),
+    subject: "DB",
+    score: 101
+  }, facultyToken);
+  assert.equal(invalidResponse.status, 400);
+});
+
+integrationTest("attendance API supports create, student read, duplicate protection, and history", async () => {
+  const createResponse = await jsonRequest("/attendance", "POST", {
+    studentId: String(student._id),
+    subject: "Computer Networks",
+    status: "present",
+    date: "2026-09-10"
+  }, facultyToken);
+  assert.equal(createResponse.status, 201);
+
+  const summaryResponse = await authRequest(`/attendance/student/${student._id}`, studentToken);
+  assert.equal(summaryResponse.status, 200);
+  assert.deepEqual(await summaryResponse.json(), {
+    studentId: String(student._id),
+    totalClasses: 1,
+    present: 1,
+    percentage: 100
+  });
+
+  const historyResponse = await authRequest(`/attendance/history/${student._id}`, studentToken);
+  assert.equal(historyResponse.status, 200);
+  assert.equal((await historyResponse.json())[0].subject, "Computer Networks");
+
+  const duplicateResponse = await jsonRequest("/attendance", "POST", {
+    studentId: String(student._id),
+    subject: "Computer Networks",
+    status: "absent",
+    date: "2026-09-10"
+  }, facultyToken);
+  assert.equal(duplicateResponse.status, 409);
+});
+
+integrationTest("timetable API enforces faculty writes and allows authenticated reads", async () => {
+  const facultyResponse = await jsonRequest("/timetable", "POST", {
+    day: "monday",
+    subject: "Cloud Computing",
+    time: "10:00 AM"
+  }, facultyToken);
+  assert.equal(facultyResponse.status, 201);
+
+  const studentResponse = await authRequest("/timetable", studentToken);
+  assert.equal(studentResponse.status, 200);
+  assert.equal((await studentResponse.json())[0].subject, "Cloud Computing");
+
+  const forbiddenWrite = await jsonRequest("/timetable", "POST", {
+    day: "tuesday",
+    subject: "Operating Systems",
+    time: "11:00 AM"
+  }, studentToken);
+  assert.equal(forbiddenWrite.status, 403);
+});
+
+integrationTest("faculty registration and login work through the API", async () => {
+  const registerResponse = await jsonRequest("/api/faculty/register", "POST", {
+    name: "Second Integration Faculty",
+    email: "second@integration.test",
+    password: "secondpass123"
+  }, facultyToken);
+  assert.equal(registerResponse.status, 201);
+
+  const loginResponse = await jsonRequest("/api/faculty/login", "POST", {
+    email: "second@integration.test",
+    password: "secondpass123"
+  });
+  assert.equal(loginResponse.status, 200);
+  assert.ok((await loginResponse.json()).token);
 });
