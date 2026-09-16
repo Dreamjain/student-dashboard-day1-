@@ -28,13 +28,12 @@ const facultySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-facultySchema.pre("save", async function hashFacultyPassword(next) {
+facultySchema.pre("save", async function hashFacultyPassword() {
   if (!this.isModified("password") || isPasswordHash(this.password)) {
-    return next();
+    return;
   }
 
   this.password = await hashPassword(this.password);
-  return next();
 });
 
 facultySchema.set("toJSON", {
