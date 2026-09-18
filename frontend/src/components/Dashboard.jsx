@@ -17,8 +17,7 @@ function Dashboard({ studentId, setActiveTab }) {
       const res = await api.get(`/students/summary/${studentId}`);
       setSummary(res.data);
     } catch (requestError) {
-      console.error("Error fetching summary:", requestError);
-      setError("Could not load your dashboard data. Please try again.");
+      setError(getApiErrorMessage(requestError, "Could not load your dashboard data. Please try again."));
     } finally {
       setLoading(false);
     }
