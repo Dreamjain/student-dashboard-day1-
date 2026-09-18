@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/client";
+import { getApiErrorMessage } from "../api/errors";
 
 const SUBJECTS = ["DBMS", "DAA", "PQT", "DTM", "Soc.Eng", "AI"];
 
