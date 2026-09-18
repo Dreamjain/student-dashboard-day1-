@@ -24,7 +24,7 @@ function FacultyLogin({ setFacultyId }) {
       localStorage.setItem(USER_KEY, JSON.stringify({ id: res.data.facultyId, role: "faculty" }));
       setFacultyId(res.data.facultyId);
     } catch (requestError) {
-      setError(requestError.response?.data?.message || "Unable to sign in.");
+      setError(getApiErrorMessage(requestError, "Unable to sign in. Check your credentials and try again."));
     } finally {
       setLoading(false);
     }
