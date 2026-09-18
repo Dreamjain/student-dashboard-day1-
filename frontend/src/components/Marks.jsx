@@ -14,8 +14,7 @@ function Marks({ studentId }) {
       const res = await api.get(`/marks/student/${studentId}`);
       setMarks(Array.isArray(res.data) ? res.data : []);
     } catch (requestError) {
-      console.error("Error fetching marks:", requestError);
-      setError("Could not load marks. Please try again.");
+      setError(getApiErrorMessage(requestError, "Could not load marks. Please try again."));
     } finally {
       setLoading(false);
     }
