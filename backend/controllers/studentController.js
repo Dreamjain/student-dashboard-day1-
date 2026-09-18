@@ -3,7 +3,7 @@ const Attendance = require("../models/attendanceModel");
 const Marks = require("../models/marksModel");
 const { verifyPassword } = require("../utils/password");
 const { sign } = require("../utils/jwt");
-const { validateCredentials, validateStudentInput } = require("../utils/validation");
+const { validateCredentials, validateStudentInput, validateStudentUpdate } = require("../utils/validation");
 
 exports.createStudent = async (req, res) => {
   const validation = validateStudentInput(req.body);
@@ -23,7 +23,10 @@ exports.getStudentById = async (req, res) => {
 };
 
 exports.updateStudent = async (req, res) => {
-  const updatedStudent = await Student.findByIdAndUpdate(req.params.id, req.body, {
+  const validation = validateStudentUpdate(req.body);
+  if (!validation.valid) return res.status(400).json({ message: validation.message });
+
+  const updatedStudent = await Student.findByIdAndUpdate(req.params.id, validation.data, {
     new: true,
     runValidators: true
   });
