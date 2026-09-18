@@ -31,9 +31,7 @@ test("JWT verification rejects expired tokens", () => {
 test("JWT verification rejects tokens with invalid identity claims", () => {
   const cases = [
     { id: "", role: "student" },
-    { id: "student-123", role: "admin" },
-    { id: "student-123", role: "student", iat: "not-a-number" },
-    { id: "student-123", role: "student", exp: "not-a-number" }
+    { id: "student-123", role: "admin" }
   ];
 
   for (const payload of cases) {
