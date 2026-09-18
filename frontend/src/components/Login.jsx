@@ -24,7 +24,7 @@ function Login({ setStudentId }) {
       localStorage.setItem(USER_KEY, JSON.stringify(res.data.user));
       setStudentId(res.data.user.id);
     } catch (requestError) {
-      setError(requestError.response?.data?.message || "Unable to sign in. Check your credentials and try again.");
+      setError(getApiErrorMessage(requestError, "Unable to sign in. Check your credentials and try again."));
     } finally {
       setLoading(false);
     }
