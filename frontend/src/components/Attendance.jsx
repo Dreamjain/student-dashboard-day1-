@@ -14,8 +14,7 @@ function Attendance({ studentId }) {
       const res = await api.get(`/attendance/history/${studentId}`);
       setAttendance(Array.isArray(res.data) ? res.data : []);
     } catch (requestError) {
-      console.error("Error fetching attendance:", requestError);
-      setError("Could not load attendance. Please try again.");
+      setError(getApiErrorMessage(requestError, "Could not load attendance. Please try again."));
     } finally {
       setLoading(false);
     }
