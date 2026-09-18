@@ -14,8 +14,7 @@ function Timetable() {
       const res = await api.get("/timetable");
       setTimetable(Array.isArray(res.data) ? res.data : []);
     } catch (requestError) {
-      console.error("Error fetching timetable:", requestError);
-      setError("Could not load the timetable. Please try again.");
+      setError(getApiErrorMessage(requestError, "Could not load the timetable. Please try again."));
     } finally {
       setLoading(false);
     }
