@@ -6,6 +6,13 @@ const createRateLimiter = ({ windowMs, max, message = "Too many requests" }) => 
     const now = Date.now();
     const current = attempts.get(key);
 
+    // Prevent stale entries from accumulating indefinitely in long-lived processes.
+    if (attempts.size > 10_000) {
+      for (const [clientKey, record] of attempts) {
+        if (now >= record.resetAt) attempts.delete(clientKey);
+      }
+    }
+
     if (!current || now >= current.resetAt) {
       attempts.set(key, { count: 1, resetAt: now + windowMs });
       return next();
