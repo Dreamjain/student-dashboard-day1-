@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import api from "../api/client";
+import { getApiErrorMessage } from "../api/errors";
 
 function Timetable() {
   const [timetable, setTimetable] = useState([]);
