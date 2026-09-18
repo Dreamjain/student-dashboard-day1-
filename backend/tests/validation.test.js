@@ -4,6 +4,7 @@ const {
   normalizeRollNumber,
   validateCredentials,
   validateStudentInput,
+  validateStudentUpdate,
   validateMarksInput,
   validateAttendanceInput,
 } = require("../utils/validation");
@@ -64,6 +65,36 @@ test("validateStudentInput returns sanitized student data", () => {
       year: 3,
       password: "password123",
     },
+  });
+});
+
+test("validateStudentUpdate enforces password strength and allowlists fields", () => {
+  assert.equal(
+    validateStudentUpdate({ password: "1234567" }).message,
+    "Password must be at least 8 characters"
+  );
+  assert.equal(
+    validateStudentUpdate({ __v: 1 }).message,
+    "Unsupported student fields"
+  );
+  assert.deepEqual(validateStudentUpdate({ department: " CSE " }), {
+    valid: true,
+    data: { department: "CSE" }
+  });
+});
+
+test("validateFacultyInput enforces consistent name, email, and password rules", () => {
+  const { validateFacultyInput } = require("../utils/validation");
+  assert.equal(validateFacultyInput({ name: "A", email: "a@b.com", password: "12345678" }).valid, false);
+  assert.equal(validateFacultyInput({ name: "Faculty", email: "bad-email", password: "12345678" }).valid, false);
+  assert.equal(validateFacultyInput({ name: "Faculty", email: "faculty@example.com", password: "1234567" }).valid, false);
+  assert.deepEqual(validateFacultyInput({
+    name: " Faculty ",
+    email: "FACULTY@EXAMPLE.COM",
+    password: "password123"
+  }), {
+    valid: true,
+    data: { name: "Faculty", email: "faculty@example.com", password: "password123" }
   });
 });
 
