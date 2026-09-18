@@ -3,6 +3,7 @@ import { FaCalendar } from "react-icons/fa";
 import "./dashboard.css";
 import Charts from "./Charts";
 import api from "../api/client";
+import { getApiErrorMessage } from "../api/errors";
 
 function Dashboard({ studentId, setActiveTab }) {
   const [summary, setSummary] = useState(null);
