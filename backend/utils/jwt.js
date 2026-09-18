@@ -61,9 +61,20 @@ const verify = (token) => {
   }
 
   if (header.alg !== "HS256" || header.typ !== "JWT") throw new Error("Invalid token");
-  if (!payload.exp || payload.exp <= Math.floor(Date.now() / 1000)) {
-    throw new Error("Token expired");
+
+  const now = Math.floor(Date.now() / 1000);
+  if (
+    typeof payload.id !== "string" ||
+    !payload.id ||
+    !["student", "faculty"].includes(payload.role) ||
+    !Number.isInteger(payload.iat) ||
+    !Number.isInteger(payload.exp)
+  ) {
+    throw new Error("Invalid token");
   }
+
+  if (payload.exp <= now) throw new Error("Token expired");
+  if (payload.iat > now || payload.exp <= payload.iat) throw new Error("Invalid token");
 
   return payload;
 };
