@@ -24,8 +24,7 @@ function FacultyDashboard({ onLogout }) {
         const res = await api.get("/students");
         setStudents(Array.isArray(res.data) ? res.data : []);
       } catch (requestError) {
-        console.error("Error fetching students:", requestError);
-        setError("Could not load students. Please refresh and try again.");
+        setError(getApiErrorMessage(requestError, "Could not load students. Please refresh and try again."));
       } finally {
         setLoading(false);
       }
@@ -50,7 +49,7 @@ function FacultyDashboard({ onLogout }) {
       setMessage("Marks added successfully.");
       setMarks("");
     } catch (requestError) {
-      setError(requestError.response?.data?.message || "Unable to add marks.");
+      setError(getApiErrorMessage(requestError, "Unable to add marks. Please try again."));
     } finally {
       setSubmitting(false);
     }
@@ -77,7 +76,7 @@ function FacultyDashboard({ onLogout }) {
       setMessage("Attendance added successfully.");
       setAttendance("");
     } catch (requestError) {
-      setError(requestError.response?.data?.message || "Unable to add attendance.");
+      setError(getApiErrorMessage(requestError, "Unable to add attendance. Please try again."));
     } finally {
       setSubmitting(false);
     }
