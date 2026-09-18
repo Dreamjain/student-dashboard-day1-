@@ -191,6 +191,16 @@ integrationTest("faculty can create, update, and delete a student through the AP
   assert.equal(updateResponse.status, 200);
   assert.equal((await updateResponse.json()).department, "CSE");
 
+  const weakPasswordResponse = await jsonRequest(`/students/${created._id}`, "PUT", {
+    password: "1234567"
+  }, facultyToken);
+  assert.equal(weakPasswordResponse.status, 400);
+
+  const unsupportedFieldResponse = await jsonRequest(`/students/${created._id}`, "PUT", {
+    isAdmin: true
+  }, facultyToken);
+  assert.equal(unsupportedFieldResponse.status, 400);
+
   const deleteResponse = await authRequest(`/students/${created._id}`, facultyToken, { method: "DELETE" });
   assert.equal(deleteResponse.status, 200);
   assert.deepEqual(await deleteResponse.json(), { message: "Student deleted successfully" });
