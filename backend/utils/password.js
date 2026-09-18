@@ -15,8 +15,8 @@ const isPasswordHash = (value) =>
   typeof value === "string" && value.startsWith(`${HASH_PREFIX}$`);
 
 const hashPassword = async (password) => {
-  if (typeof password !== "string" || password.length < 6) {
-    throw new Error("Password must be at least 6 characters long");
+  if (typeof password !== "string" || password.length < 8) {
+    throw new Error("Password must be at least 8 characters long");
   }
 
   const salt = crypto.randomBytes(SALT_LENGTH).toString("hex");
