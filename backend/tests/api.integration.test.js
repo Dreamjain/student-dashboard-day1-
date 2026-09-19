@@ -20,11 +20,53 @@ let facultySession;
 
 const request = (path, options) => fetch(`${baseUrl}${path}`, options);
 
-const jsonRequest = (path, method, body, token) => request(path, {
+const getSetCookies = (response) =>
+  typeof response.headers.getSetCookie === "function"
+    ? response.headers.getSetCookie()
+    : [];
+
+const getCookie = (setCookies, name) => {
+  const value = setCookies.find((cookie) => cookie.startsWith(`${name}=`));
+  return value ? value.split(";", 1)[0] : "";
+};
+
+const loginSession = async (path, body) => {
+  const csrfResponse = await request("/auth/csrf");
+  assert.equal(csrfResponse.status, 200);
+  const preAuthCsrfCookie = getCookie(getSetCookies(csrfResponse), "studentDashboardCsrf");
+  assert.ok(preAuthCsrfCookie);
+
+  const loginResponse = await request(path, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-csrf-token": decodeURIComponent(preAuthCsrfCookie.slice(preAuthCsrfCookie.indexOf("=") + 1))
+    },
+    body: JSON.stringify(body)
+  });
+  assert.equal(loginResponse.status, 200);
+
+  const setCookies = getSetCookies(loginResponse);
+  const authCookie = getCookie(setCookies, "studentDashboardAuth");
+  const sessionCsrfCookie = getCookie(setCookies, "studentDashboardCsrf");
+  assert.ok(authCookie);
+  assert.ok(sessionCsrfCookie);
+
+  return {
+    cookie: `${authCookie}; ${sessionCsrfCookie}`,
+    csrf: decodeURIComponent(sessionCsrfCookie.slice(sessionCsrfCookie.indexOf("=") + 1))
+  };
+};
+
+const jsonRequest = (path, method, body, auth) => request(path, {
   method,
   headers: {
     "content-type": "application/json",
-    ...(token ? { authorization: `Bearer ${token}` } : {})
+    ...(auth?.cookie
+      ? { cookie: auth.cookie, "x-csrf-token": auth.csrf }
+      : auth
+        ? { authorization: auth }
+        : {})
   },
   body: JSON.stringify(body)
 });
