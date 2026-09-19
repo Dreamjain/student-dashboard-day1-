@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const USER_KEY = "studentDashboardUser";
-const CSRF_COOKIE = "studentDashboardCsrf";
+const CSRF_COOKIE = import.meta.env.PROD ? "__Host-student-dashboard-csrf" : "studentDashboardCsrf";
 const baseURL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000").replace(/\/+$/, "");
 
 const api = axios.create({
