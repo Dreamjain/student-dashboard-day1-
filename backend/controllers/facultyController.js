@@ -2,6 +2,7 @@ const Faculty = require("../models/facultyModel");
 const { verifyPassword } = require("../utils/password");
 const { sign } = require("../utils/jwt");
 const { normalizeEmail, validateFacultyInput } = require("../utils/validation");
+const { setSessionCookies } = require("../utils/sessionCookies");
 
 const loginFaculty = async (req, res) => {
   const email = normalizeEmail(req.body?.email);
@@ -18,7 +19,8 @@ const loginFaculty = async (req, res) => {
   }
 
   const token = sign({ id: String(faculty._id), role: "faculty" });
-  res.json({ message: "Login successful", token, facultyId: faculty._id });
+  setSessionCookies(res, token);
+  res.json({ message: "Login successful", facultyId: faculty._id });
 };
 
 const registerFaculty = async (req, res) => {
