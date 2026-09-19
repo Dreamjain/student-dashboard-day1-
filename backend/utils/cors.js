@@ -11,6 +11,7 @@ const buildCorsOptions = (configuredOrigins = process.env.CLIENT_ORIGIN) => {
   const allowedOrigins = normalizeOrigins(configuredOrigins);
 
   return {
+    credentials: true,
     origin: (requestOrigin, callback) => {
       // Non-browser clients and same-origin requests do not send an Origin header.
       if (!requestOrigin) return callback(null, true);
