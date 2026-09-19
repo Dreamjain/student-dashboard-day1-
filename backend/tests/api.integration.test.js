@@ -40,6 +40,7 @@ const loginSession = async (path, body) => {
     method: "POST",
     headers: {
       "content-type": "application/json",
+      cookie: preAuthCsrfCookie,
       "x-csrf-token": decodeURIComponent(preAuthCsrfCookie.slice(preAuthCsrfCookie.indexOf("=") + 1))
     },
     body: JSON.stringify(body)
