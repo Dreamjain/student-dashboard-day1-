@@ -8,7 +8,7 @@ import Sidebar from "./components/Sidebar";
 import FacultyLogin from "./components/FacultyLogin";
 import FacultyDashboard from "./components/FacultyDashboard";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { TOKEN_KEY, USER_KEY } from "./api/client";
+import { USER_KEY } from "./api/client";
 import "./app.css";
 
 function App() {
@@ -18,17 +18,15 @@ function App() {
 
   useEffect(() => {
     const restoreSession = () => {
-      const token = localStorage.getItem(TOKEN_KEY);
-      const rawUser = localStorage.getItem(USER_KEY);
-      if (!token || !rawUser) return;
+      const rawUser = sessionStorage.getItem(USER_KEY);
+      if (!rawUser) return;
 
       try {
         const user = JSON.parse(rawUser);
         if (user.role === "faculty" && user.id) setFacultyId(user.id);
         if (user.role === "student" && user.id) setStudentId(user.id);
       } catch {
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(USER_KEY);
+        sessionStorage.removeItem(USER_KEY);
       }
     };
 
@@ -44,9 +42,9 @@ function App() {
     return () => window.removeEventListener("auth:expired", handleExpired);
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+  const logout = async () => {
+    try { await import("./api/client").then(({ default: client }) => client.post("/auth/logout")); } catch { /* clear local session even if server is unavailable */ }
+    sessionStorage.removeItem(USER_KEY);
     setStudentId(null);
     setFacultyId(null);
     setActiveTab(null);
