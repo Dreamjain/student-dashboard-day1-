@@ -332,10 +332,9 @@ integrationTest("faculty registration and login work through the API", async () 
   }, facultySession);
   assert.equal(registerResponse.status, 201);
 
-  const loginResponse = await jsonRequest("/api/faculty/login", "POST", {
+  const loginSessionResponse = await loginSession("/api/faculty/login", {
     email: "second@integration.test",
     password: "secondpass123"
   });
-  assert.equal(loginResponse.status, 200);
-  assert.ok((await loginResponse.json()).facultyId);
+  assert.ok(loginSessionResponse.body.facultyId);
 });
