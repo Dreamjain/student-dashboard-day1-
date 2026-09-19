@@ -46,7 +46,7 @@ const loginSession = async (path, body) => {
   });
   assert.equal(loginResponse.status, 200);
 
-  const body = await loginResponse.json();
+  const responseBody = await loginResponse.json();
   const setCookies = getSetCookies(loginResponse);
   const authCookie = getCookie(setCookies, "studentDashboardAuth");
   const sessionCsrfCookie = getCookie(setCookies, "studentDashboardCsrf");
@@ -56,7 +56,7 @@ const loginSession = async (path, body) => {
   return {
     cookie: `${authCookie}; ${sessionCsrfCookie}`,
     csrf: decodeURIComponent(sessionCsrfCookie.slice(sessionCsrfCookie.indexOf("=") + 1)),
-    body
+    body: responseBody
   };
 };
 
