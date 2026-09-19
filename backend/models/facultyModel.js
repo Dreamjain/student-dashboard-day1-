@@ -15,4 +15,12 @@ facultySchema.pre("save", async function hashFacultyPassword() {
   this.password = await hashPassword(this.password);
 });
 
+facultySchema.set("toJSON", {
+  transform: (_doc, ret) => {
+    delete ret.password;
+    delete ret.__v;
+    return ret;
+  }
+});
+
 module.exports = mongoose.model("Faculty", facultySchema);
