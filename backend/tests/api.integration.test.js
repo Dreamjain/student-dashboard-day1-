@@ -15,8 +15,8 @@ let server;
 let baseUrl;
 let student;
 let otherStudent;
-let studentToken;
-let facultyToken;
+let studentSession;
+let facultySession;
 
 const request = (path, options) => fetch(`${baseUrl}${path}`, options);
 
@@ -29,11 +29,12 @@ const jsonRequest = (path, method, body, token) => request(path, {
   body: JSON.stringify(body)
 });
 
-const authRequest = (path, token, options = {}) => request(path, {
+const authRequest = (path, session, options = {}) => request(path, {
   ...options,
   headers: {
     ...(options.headers || {}),
-    authorization: `Bearer ${token}`
+    cookie: session.cookie,
+    "x-csrf-token": session.csrf
   }
 });
 
@@ -77,19 +78,15 @@ test.before(async () => {
     password: "facultypass123"
   });
 
-  const studentLogin = await jsonRequest("/students/login", "POST", {
+  studentSession = await loginSession("/students/login", {
     rollNumber: "integration-student",
     password: "studentpass123"
   });
-  assert.equal(studentLogin.status, 200);
-  studentToken = (await studentLogin.json()).token;
 
-  const facultyLogin = await jsonRequest("/api/faculty/login", "POST", {
+  facultySession = await loginSession("/api/faculty/login", {
     email: faculty.email,
     password: "facultypass123"
   });
-  assert.equal(facultyLogin.status, 200);
-  facultyToken = (await facultyLogin.json()).token;
 });
 
 test.after(async () => {
@@ -145,13 +142,12 @@ integrationTest("student login returns a JWT and safe user payload", async () =>
   const body = await response.json();
 
   assert.equal(response.status, 200);
-  assert.ok(body.token);
   assert.equal(body.user.rollNumber, "INTEGRATION-STUDENT");
   assert.equal(body.user.password, undefined);
 });
 
 integrationTest("student JWT can access its own summary but not another student's summary", async () => {
-  const ownResponse = await authRequest(`/students/summary/${student._id}`, studentToken);
+  const ownResponse = await authRequest(`/students/summary/${student._id}`, studentSession);
   assert.equal(ownResponse.status, 200);
   assert.deepEqual(await ownResponse.json(), {
     name: "Integration Student",
@@ -159,16 +155,16 @@ integrationTest("student JWT can access its own summary but not another student'
     averageMarks: 0
   });
 
-  const otherResponse = await authRequest(`/students/summary/${otherStudent._id}`, studentToken);
+  const otherResponse = await authRequest(`/students/summary/${otherStudent._id}`, studentSession);
   assert.equal(otherResponse.status, 403);
 });
 
 integrationTest("faculty JWT can list students while student JWT is forbidden", async () => {
-  const facultyResponse = await authRequest("/students", facultyToken);
+  const facultyResponse = await authRequest("/students", facultySession);
   assert.equal(facultyResponse.status, 200);
   assert.equal((await facultyResponse.json()).length, 2);
 
-  const studentResponse = await authRequest("/students", studentToken);
+  const studentResponse = await authRequest("/students", studentSession);
   assert.equal(studentResponse.status, 403);
 });
 
@@ -179,7 +175,7 @@ integrationTest("faculty can create, update, and delete a student through the AP
     department: "ECE",
     year: 1,
     password: "crudpass123"
-  }, facultyToken);
+  }, facultySession);
   assert.equal(createResponse.status, 201);
   const created = await createResponse.json();
   assert.equal(created.rollNumber, "INTEGRATION-CRUD");
@@ -187,21 +183,21 @@ integrationTest("faculty can create, update, and delete a student through the AP
 
   const updateResponse = await jsonRequest(`/students/${created._id}`, "PUT", {
     department: "CSE"
-  }, facultyToken);
+  }, facultySession);
   assert.equal(updateResponse.status, 200);
   assert.equal((await updateResponse.json()).department, "CSE");
 
   const weakPasswordResponse = await jsonRequest(`/students/${created._id}`, "PUT", {
     password: "1234567"
-  }, facultyToken);
+  }, facultySession);
   assert.equal(weakPasswordResponse.status, 400);
 
   const unsupportedFieldResponse = await jsonRequest(`/students/${created._id}`, "PUT", {
     isAdmin: true
-  }, facultyToken);
+  }, facultySession);
   assert.equal(unsupportedFieldResponse.status, 400);
 
-  const deleteResponse = await authRequest(`/students/${created._id}`, facultyToken, { method: "DELETE" });
+  const deleteResponse = await authRequest(`/students/${created._id}`, facultySession, { method: "DELETE" });
   assert.equal(deleteResponse.status, 200);
   assert.deepEqual(await deleteResponse.json(), { message: "Student deleted successfully" });
 });
@@ -211,10 +207,10 @@ integrationTest("marks API supports create, read, duplicate protection, and vali
     studentId: String(student._id),
     subject: "Database Systems",
     score: 91
-  }, facultyToken);
+  }, facultySession);
   assert.equal(createResponse.status, 201);
 
-  const readResponse = await authRequest(`/marks/student/${student._id}`, studentToken);
+  const readResponse = await authRequest(`/marks/student/${student._id}`, studentSession);
   assert.equal(readResponse.status, 200);
   assert.equal((await readResponse.json())[0].score, 91);
 
@@ -222,7 +218,7 @@ integrationTest("marks API supports create, read, duplicate protection, and vali
     studentId: String(student._id),
     subject: "Database Systems",
     score: 88
-  }, facultyToken);
+  }, facultySession);
   assert.equal(duplicateResponse.status, 409);
   assert.deepEqual(await duplicateResponse.json(), { message: "Resource already exists" });
 
@@ -230,7 +226,7 @@ integrationTest("marks API supports create, read, duplicate protection, and vali
     studentId: String(student._id),
     subject: "DB",
     score: 101
-  }, facultyToken);
+  }, facultySession);
   assert.equal(invalidResponse.status, 400);
 });
 
@@ -240,10 +236,10 @@ integrationTest("attendance API supports create, student read, duplicate protect
     subject: "Computer Networks",
     status: "present",
     date: "2026-09-10"
-  }, facultyToken);
+  }, facultySession);
   assert.equal(createResponse.status, 201);
 
-  const summaryResponse = await authRequest(`/attendance/student/${student._id}`, studentToken);
+  const summaryResponse = await authRequest(`/attendance/student/${student._id}`, studentSession);
   assert.equal(summaryResponse.status, 200);
   assert.deepEqual(await summaryResponse.json(), {
     studentId: String(student._id),
@@ -252,7 +248,7 @@ integrationTest("attendance API supports create, student read, duplicate protect
     percentage: 100
   });
 
-  const historyResponse = await authRequest(`/attendance/history/${student._id}`, studentToken);
+  const historyResponse = await authRequest(`/attendance/history/${student._id}`, studentSession);
   assert.equal(historyResponse.status, 200);
   assert.equal((await historyResponse.json())[0].subject, "Computer Networks");
 
@@ -261,7 +257,7 @@ integrationTest("attendance API supports create, student read, duplicate protect
     subject: "Computer Networks",
     status: "absent",
     date: "2026-09-10"
-  }, facultyToken);
+  }, facultySession);
   assert.equal(duplicateResponse.status, 409);
 });
 
@@ -270,10 +266,10 @@ integrationTest("timetable API enforces faculty writes and allows authenticated 
     day: "monday",
     subject: "Cloud Computing",
     time: "10:00 AM"
-  }, facultyToken);
+  }, facultySession);
   assert.equal(facultyResponse.status, 201);
 
-  const studentResponse = await authRequest("/timetable", studentToken);
+  const studentResponse = await authRequest("/timetable", studentSession);
   assert.equal(studentResponse.status, 200);
   assert.equal((await studentResponse.json())[0].subject, "Cloud Computing");
 
@@ -281,7 +277,7 @@ integrationTest("timetable API enforces faculty writes and allows authenticated 
     day: "tuesday",
     subject: "Operating Systems",
     time: "11:00 AM"
-  }, studentToken);
+  }, studentSession);
   assert.equal(forbiddenWrite.status, 403);
 });
 
@@ -290,7 +286,7 @@ integrationTest("faculty registration and login work through the API", async () 
     name: "Second Integration Faculty",
     email: "second@integration.test",
     password: "secondpass123"
-  }, facultyToken);
+  }, facultySession);
   assert.equal(registerResponse.status, 201);
 
   const loginResponse = await jsonRequest("/api/faculty/login", "POST", {
@@ -298,5 +294,5 @@ integrationTest("faculty registration and login work through the API", async () 
     password: "secondpass123"
   });
   assert.equal(loginResponse.status, 200);
-  assert.ok((await loginResponse.json()).token);
+  assert.ok((await loginResponse.json()).facultyId);
 });
