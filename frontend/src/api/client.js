@@ -1,18 +1,33 @@
 import axios from "axios";
 
-const TOKEN_KEY = "studentDashboardToken";
 const USER_KEY = "studentDashboardUser";
+const CSRF_COOKIE = "studentDashboardCsrf";
 const baseURL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000").replace(/\/+$/, "");
 
 const api = axios.create({
   baseURL,
   timeout: 10000,
+  withCredentials: true,
   headers: { "Content-Type": "application/json" }
 });
 
+const readCookie = (name) => {
+  const prefix = `${name}=`;
+  const match = document.cookie.split("; ").find((cookie) => cookie.startsWith(prefix));
+  return match ? decodeURIComponent(match.slice(prefix.length)) : "";
+};
+
+const ensureCsrf = async () => {
+  if (!readCookie(CSRF_COOKIE)) {
+    await api.get("/auth/csrf");
+  }
+};
+
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem(TOKEN_KEY);
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (!/^(GET|HEAD|OPTIONS)$/i.test(config.method || "GET")) {
+    const token = readCookie(CSRF_COOKIE);
+    if (token) config.headers["X-CSRF-Token"] = token;
+  }
   return config;
 });
 
@@ -20,13 +35,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(USER_KEY);
+      sessionStorage.removeItem(USER_KEY);
       window.dispatchEvent(new Event("auth:expired"));
     }
     return Promise.reject(error);
   }
 );
 
-export { TOKEN_KEY, USER_KEY };
+export { USER_KEY, ensureCsrf };
 export default api;
