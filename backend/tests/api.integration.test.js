@@ -46,6 +46,7 @@ const loginSession = async (path, body) => {
   });
   assert.equal(loginResponse.status, 200);
 
+  const body = await loginResponse.json();
   const setCookies = getSetCookies(loginResponse);
   const authCookie = getCookie(setCookies, "studentDashboardAuth");
   const sessionCsrfCookie = getCookie(setCookies, "studentDashboardCsrf");
@@ -54,7 +55,8 @@ const loginSession = async (path, body) => {
 
   return {
     cookie: `${authCookie}; ${sessionCsrfCookie}`,
-    csrf: decodeURIComponent(sessionCsrfCookie.slice(sessionCsrfCookie.indexOf("=") + 1))
+    csrf: decodeURIComponent(sessionCsrfCookie.slice(sessionCsrfCookie.indexOf("=") + 1)),
+    body
   };
 };
 
@@ -176,16 +178,15 @@ test("malformed JSON is rejected by the API middleware stack", async () => {
   assert.deepEqual(await response.json(), { message: "Invalid JSON payload" });
 });
 
-integrationTest("student login returns a JWT and safe user payload", async () => {
-  const response = await jsonRequest("/students/login", "POST", {
+integrationTest("student login returns a safe user payload and cookie session", async () => {
+  const session = await loginSession("/students/login", {
     rollNumber: "INTEGRATION-STUDENT",
     password: "studentpass123"
   });
-  const body = await response.json();
 
-  assert.equal(response.status, 200);
-  assert.equal(body.user.rollNumber, "INTEGRATION-STUDENT");
-  assert.equal(body.user.password, undefined);
+  assert.equal(session.body.user.rollNumber, "INTEGRATION-STUDENT");
+  assert.equal(session.body.user.password, undefined);
+  assert.ok(session.cookie);
 });
 
 integrationTest("student JWT can access its own summary but not another student's summary", async () => {
