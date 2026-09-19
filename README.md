@@ -112,7 +112,7 @@ cd backend
 npm run seed
 ```
 
-The seed script replaces the existing `Student` collection with the sample records in `students.json`.
+The seed script replaces the existing `Student` collection with the fictional demo records in `students.json` and generates a unique cryptographically random password for each seeded student. The generated credentials are printed once to the seed command output and should be treated as local-development secrets.
 
 ### 4. Start the frontend
 
@@ -125,6 +125,15 @@ npm run dev
 ```
 
 Vite will print the local frontend URL in the terminal.
+
+## 🔐 Security Notes
+
+- Browser authentication uses an `HttpOnly`, `SameSite` session cookie instead of storing JWTs in `localStorage`.
+- State-changing browser requests use a signed, session-bound CSRF token in a custom request header.
+- Production cookies require HTTPS; configure `COOKIE_SECURE=true` and use an appropriate `COOKIE_SAMESITE` value.
+- Set `CLIENT_ORIGIN` to explicit frontend origins when using the API from another origin.
+- `TRUST_PROXY` should only be enabled when the API is actually behind a trusted reverse proxy.
+- The in-memory login rate limiter is intended for a single-process deployment; a shared store is required if the API is horizontally scaled.
 
 ## 🧪 Quality Checks
 
