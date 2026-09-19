@@ -1,3 +1,4 @@
+const { verify } = require("../utils/jwt");
 const {
   AUTH_COOKIE,
   CSRF_COOKIE,
@@ -25,7 +26,16 @@ const csrfProtection = (req, res, next) => {
     return res.status(403).json({ message: "CSRF protection required" });
   }
 
-  const binding = authToken || "preauth";
+  let binding = "preauth";
+  if (authToken) {
+    try {
+      verify(authToken);
+      binding = authToken;
+    } catch {
+      // An expired/invalid session cookie must not prevent a fresh login or logout.
+      binding = "preauth";
+    }
+  }
 
   if (!verifyCsrfToken(csrfCookie, binding) || csrfHeader !== csrfCookie) {
     return res.status(403).json({ message: "Invalid CSRF token" });
