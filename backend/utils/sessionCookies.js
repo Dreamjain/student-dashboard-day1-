@@ -74,8 +74,7 @@ const setSessionCookies = (res, token) => {
 };
 
 const setPreAuthCsrfCookie = (res) => {
-  const binding = `preauth:${crypto.randomBytes(32).toString("hex")}`;
-  const token = createCsrfToken(binding);
+  const token = createCsrfToken("preauth");
   setCookie(res, CSRF_COOKIE, token, false);
   return binding;
 };
