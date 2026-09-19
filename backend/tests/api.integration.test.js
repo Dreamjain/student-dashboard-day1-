@@ -202,6 +202,41 @@ integrationTest("student JWT can access its own summary but not another student'
   assert.equal(otherResponse.status, 403);
 });
 
+integrationTest("cookie-authenticated state changes require a valid CSRF header", async () => {
+  const missingToken = await request("/students", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      cookie: facultySession.cookie
+    },
+    body: JSON.stringify({
+      name: "CSRF Test",
+      rollNumber: "INTEGRATION-CSRF",
+      department: "CSE",
+      year: 1,
+      password: "csrfpass123"
+    })
+  });
+  assert.equal(missingToken.status, 403);
+
+  const invalidToken = await request("/students", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      cookie: facultySession.cookie,
+      "x-csrf-token": "invalid"
+    },
+    body: JSON.stringify({
+      name: "CSRF Test",
+      rollNumber: "INTEGRATION-CSRF",
+      department: "CSE",
+      year: 1,
+      password: "csrfpass123"
+    })
+  });
+  assert.equal(invalidToken.status, 403);
+});
+
 integrationTest("faculty JWT can list students while student JWT is forbidden", async () => {
   const facultyResponse = await authRequest("/students", facultySession);
   assert.equal(facultyResponse.status, 200);
