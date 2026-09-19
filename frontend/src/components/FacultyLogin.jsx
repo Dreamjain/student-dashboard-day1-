@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api, { TOKEN_KEY, USER_KEY } from "../api/client";
+import api, { USER_KEY, ensureCsrf } from "../api/client";
 import { getApiErrorMessage } from "../api/errors";
 
 function FacultyLogin({ setFacultyId }) {
@@ -18,10 +18,10 @@ function FacultyLogin({ setFacultyId }) {
 
     setLoading(true);
     try {
+      await ensureCsrf();
       const res = await api.post("/api/faculty/login", { email: email.trim().toLowerCase(), password });
-      if (!res.data?.token || !res.data?.facultyId) throw new Error("Invalid login response");
-      localStorage.setItem(TOKEN_KEY, res.data.token);
-      localStorage.setItem(USER_KEY, JSON.stringify({ id: res.data.facultyId, role: "faculty" }));
+      if (!res.data?.facultyId) throw new Error("Invalid login response");
+      sessionStorage.setItem(USER_KEY, JSON.stringify({ id: res.data.facultyId, role: "faculty" }));
       setFacultyId(res.data.facultyId);
     } catch (requestError) {
       setError(getApiErrorMessage(requestError, "Unable to sign in. Check your credentials and try again."));
