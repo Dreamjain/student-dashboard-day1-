@@ -8,7 +8,7 @@ import Sidebar from "./components/Sidebar";
 import FacultyLogin from "./components/FacultyLogin";
 import FacultyDashboard from "./components/FacultyDashboard";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { USER_KEY } from "./api/client";
+import api, { USER_KEY } from "./api/client";
 import "./app.css";
 
 function App() {
@@ -43,7 +43,7 @@ function App() {
   }, []);
 
   const logout = async () => {
-    try { await import("./api/client").then(({ default: client }) => client.post("/auth/logout")); } catch { /* clear local session even if server is unavailable */ }
+    try { await api.post("/auth/logout"); } catch { /* clear local session even if server is unavailable */ }
     sessionStorage.removeItem(USER_KEY);
     setStudentId(null);
     setFacultyId(null);
