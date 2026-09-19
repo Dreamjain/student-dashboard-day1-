@@ -4,6 +4,9 @@ const securityHeaders = (_req, res, next) => {
   res.setHeader("Referrer-Policy", "no-referrer");
   res.setHeader("Permissions-Policy", "geolocation=(), camera=(), microphone=()");
   res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+  if (process.env.NODE_ENV === "production") {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
   return next();
 };
 
