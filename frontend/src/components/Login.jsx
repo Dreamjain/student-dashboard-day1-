@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api, { TOKEN_KEY, USER_KEY } from "../api/client";
+import api, { USER_KEY, ensureCsrf } from "../api/client";
 import { getApiErrorMessage } from "../api/errors";
 
 function Login({ setStudentId }) {
@@ -18,10 +18,10 @@ function Login({ setStudentId }) {
 
     setLoading(true);
     try {
+      await ensureCsrf();
       const res = await api.post("/students/login", { rollNumber: rollNumber.trim(), password });
-      if (!res.data?.token || !res.data?.user?.id) throw new Error("Invalid login response");
-      localStorage.setItem(TOKEN_KEY, res.data.token);
-      localStorage.setItem(USER_KEY, JSON.stringify(res.data.user));
+      if (!res.data?.user?.id) throw new Error("Invalid login response");
+      sessionStorage.setItem(USER_KEY, JSON.stringify(res.data.user));
       setStudentId(res.data.user.id);
     } catch (requestError) {
       setError(getApiErrorMessage(requestError, "Unable to sign in. Check your credentials and try again."));
