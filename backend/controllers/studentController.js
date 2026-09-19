@@ -4,6 +4,7 @@ const Marks = require("../models/marksModel");
 const { verifyPassword } = require("../utils/password");
 const { sign } = require("../utils/jwt");
 const { validateCredentials, validateStudentInput, validateStudentUpdate } = require("../utils/validation");
+const { setSessionCookies } = require("../utils/sessionCookies");
 
 exports.createStudent = async (req, res) => {
   const validation = validateStudentInput(req.body);
@@ -73,8 +74,8 @@ exports.loginStudent = async (req, res) => {
   }
 
   const token = sign({ id: String(student._id), role: "student" });
+  setSessionCookies(res, token);
   res.json({
-    token,
     user: {
       id: student._id,
       name: student.name,
