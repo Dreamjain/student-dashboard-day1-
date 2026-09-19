@@ -19,6 +19,14 @@ const csrfProtection = (req, res, next) => {
   // to clients using Authorization headers. Cookie-authenticated browser sessions do.
   if (!authToken && hasBearerAuth) return next();
 
+  const isLoginRequest = req.method === "POST" && (
+    req.path === "/students/login" || req.path === "/api/faculty/login"
+  );
+
+  // Unauthenticated protected routes should reach their authentication middleware
+  // and return 401. Login endpoints are the exception and use a pre-auth CSRF token.
+  if (!authToken && !isLoginRequest) return next();
+
   const csrfCookie = cookies[CSRF_COOKIE];
   const csrfHeader = req.get("X-CSRF-Token");
 
