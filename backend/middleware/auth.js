@@ -1,15 +1,21 @@
 const { verify } = require("../utils/jwt");
+const { AUTH_COOKIE, parseCookies } = require("../utils/sessionCookies");
 
 const authenticate = (req, res, next) => {
   const authorization = req.headers.authorization || "";
   const match = authorization.match(/^Bearer\s+(\S+)$/i);
+  const cookies = parseCookies(req.headers.cookie);
+  const cookieToken = cookies[AUTH_COOKIE];
 
-  if (!match) {
+  if (!match && !cookieToken) {
     return res.status(401).json({ message: "Authentication required" });
   }
 
+  const token = match ? match[1] : cookieToken;
+
   try {
-    req.user = verify(match[1]);
+    req.user = verify(token);
+    req.authSource = match ? "bearer" : "cookie";
     return next();
   } catch {
     return res.status(401).json({ message: "Invalid or expired token" });
