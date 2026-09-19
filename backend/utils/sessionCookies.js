@@ -30,7 +30,9 @@ const parseCookies = (header = "") =>
     if (index < 0) return cookies;
     const key = part.slice(0, index).trim();
     const value = part.slice(index + 1).trim();
-    if (key) cookies[key] = decodeURIComponent(value);
+    if (key) {
+      try { cookies[key] = decodeURIComponent(value); } catch { /* ignore malformed cookie values */ }
+    }
     return cookies;
   }, {});
 
@@ -76,7 +78,7 @@ const setSessionCookies = (res, token) => {
 const setPreAuthCsrfCookie = (res) => {
   const token = createCsrfToken("preauth");
   setCookie(res, CSRF_COOKIE, token, false);
-  return binding;
+  return token;
 };
 
 const clearSessionCookies = (res) => {
