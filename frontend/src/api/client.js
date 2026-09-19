@@ -35,6 +35,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      api.get("/auth/csrf").catch(() => {});
       sessionStorage.removeItem(USER_KEY);
       window.dispatchEvent(new Event("auth:expired"));
     }
