@@ -12,6 +12,12 @@ const csrfProtection = (req, res, next) => {
 
   const cookies = parseCookies(req.headers.cookie);
   const authToken = cookies[AUTH_COOKIE];
+  const hasBearerAuth = /^Bearer\s+\S+$/i.test(req.headers.authorization || "");
+
+  // Bearer tokens are not automatically attached by browsers, so CSRF does not apply
+  // to clients using Authorization headers. Cookie-authenticated browser sessions do.
+  if (!authToken && hasBearerAuth) return next();
+
   const csrfCookie = cookies[CSRF_COOKIE];
   const csrfHeader = req.get("X-CSRF-Token");
 
@@ -19,12 +25,7 @@ const csrfProtection = (req, res, next) => {
     return res.status(403).json({ message: "CSRF protection required" });
   }
 
-  let binding = "preauth";
-  if (authToken) {
-    binding = authToken;
-  } else {
-    binding = req.get("X-CSRF-Binding") || "";
-  }
+  const binding = authToken || "preauth";
 
   if (!verifyCsrfToken(csrfCookie, binding) || csrfHeader !== csrfCookie) {
     return res.status(403).json({ message: "Invalid CSRF token" });
