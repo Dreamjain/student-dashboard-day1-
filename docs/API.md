@@ -2,7 +2,7 @@
 
 Base URL: `http://localhost:5000`
 
-All API responses use JSON unless otherwise noted. Protected endpoints accept either the browser session cookie created by login or a `Bearer` token for API clients.
+All API responses use JSON unless otherwise noted. Browser clients authenticate with the session cookie created by login. The backend also accepts an `Authorization: Bearer <jwt>` header for trusted non-browser integrations that already have a valid JWT.
 
 ## Authentication
 
@@ -183,13 +183,13 @@ X-CSRF-Token: <csrf-token>
 
 The backend verifies that the signed CSRF token is bound to the current session. Login uses a separate pre-authentication binding.
 
-API clients that explicitly send:
+Trusted non-browser integrations that explicitly send:
 
 ```text
 Authorization: Bearer <jwt>
 ```
 
-can use the API without the browser CSRF mechanism.
+can use the API without the browser CSRF mechanism. The browser login endpoints intentionally do not return the JWT; they establish the HttpOnly session cookie instead.
 
 ## Authorization model
 
