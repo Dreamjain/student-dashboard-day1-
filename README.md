@@ -20,6 +20,7 @@ The repository includes a frontend-based preview that documents the implemented 
 - MongoDB persistence with Mongoose
 - Backend health endpoint for operational checks
 - Automated frontend and backend CI validation
+- Documented REST API, authentication, authorization, CSRF, errors, and environment configuration
 
 ## 🏗️ Architecture
 
@@ -51,6 +52,8 @@ Reusable components are organized under `frontend/src/components/`, including:
 ## ⚙️ Backend
 
 The backend exposes REST endpoints for students, attendance, marks, timetable, and faculty data. MongoDB configuration is loaded from environment variables rather than being hard-coded in source code.
+
+The complete endpoint reference, access rules, request examples, error codes, authentication flow, CSRF behavior, rate limiting, and environment configuration are documented in [`docs/API.md`](docs/API.md).
 
 ### Health check
 
@@ -135,6 +138,10 @@ Vite will print the local frontend URL in the terminal.
 - `TRUST_PROXY` should only be enabled when the API is actually behind a trusted reverse proxy.
 - The in-memory login rate limiter is intended for a single-process deployment; a shared store is required if the API is horizontally scaled.
 
+## 📚 API Documentation
+
+See [`docs/API.md`](docs/API.md) for the complete API reference and security/authentication flow.
+
 ## 🧪 Quality Checks
 
 Backend syntax validation:
@@ -174,7 +181,8 @@ GitHub Actions runs these checks automatically on pushes and pull requests.
 │   ├── .env.example
 │   └── server.js
 ├── docs/
-│   └── student-dashboard-preview.svg
+│   ├── student-dashboard-preview.svg
+│   └── API.md
 └── README.md
 ```
 
@@ -185,7 +193,8 @@ GitHub Actions runs these checks automatically on pushes and pull requests.
 - MongoDB schema validation with Mongoose
 - Environment-based configuration
 - Input and error handling
-- Authentication-oriented API flow
+- Authentication and authorization flow with session cookies and CSRF protection
+- API documentation and security configuration
 - Production build and lint validation
 - CI quality gates with GitHub Actions
 
