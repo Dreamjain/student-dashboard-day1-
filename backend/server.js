@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+const mongoose = require("mongoose");
 const connectDB = require("./config/db");
 const { buildCorsOptions } = require("./utils/cors");
 const securityHeaders = require("./middleware/securityHeaders");
@@ -33,6 +34,22 @@ app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
+app.get("/health/ready", (_req, res) => {
+  const databaseReady = mongoose.connection.readyState === 1;
+
+  if (!databaseReady) {
+    return res.status(503).json({
+      status: "not_ready",
+      database: "disconnected"
+    });
+  }
+
+  return res.status(200).json({
+    status: "ready",
+    database: "connected"
+  });
+});
+
 app.get("/auth/csrf", (_req, res) => {
   setPreAuthCsrfCookie(res);
   res.json({ message: "CSRF token ready" });
@@ -58,9 +75,33 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+
+    const server = app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on 0.0.0.0:${PORT}`);
     });
+
+    const shutdown = (signal) => {
+      console.log(`${signal} received. Shutting down gracefully...`);
+
+      server.close(async (error) => {
+        if (error) {
+          console.error("HTTP server shutdown failed", error.message);
+          process.exitCode = 1;
+        }
+
+        try {
+          await mongoose.disconnect();
+        } catch (disconnectError) {
+          console.error("MongoDB shutdown failed", disconnectError.message);
+          process.exitCode = 1;
+        } finally {
+          process.exit();
+        }
+      });
+    };
+
+    process.once("SIGTERM", () => shutdown("SIGTERM"));
+    process.once("SIGINT", () => shutdown("SIGINT"));
   } catch (error) {
     console.error("Server startup failed ❌", error.message);
     process.exit(1);
