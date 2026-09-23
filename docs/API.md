@@ -160,6 +160,7 @@ Scores must be numeric values from 0 to 100. Duplicate student/subject mark reco
 | Method | Endpoint | Access | Response |
 |---|---|---|---|
 | GET | `/health` | Public | `{"status":"ok"}` |
+| GET | `/health/ready` | Public | Database readiness; returns `503` until MongoDB is connected |
 | GET | `/` | Public | Service status |
 | GET | `/auth/csrf` | Public | CSRF bootstrap |
 
