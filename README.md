@@ -129,6 +129,20 @@ npm run dev
 
 Vite will print the local frontend URL in the terminal.
 
+## 🚀 Production Deployment
+
+The repository includes a Render Blueprint at render.yaml for deploying the API and frontend as separate services.
+
+- API: Node.js + Express web service
+- Frontend: React + Vite static site
+- Database: external production MongoDB
+- API liveness: GET /health
+- API readiness: GET /health/ready
+- Production cookies: Secure + HttpOnly session cookies
+- Frontend API URL: configured with VITE_API_BASE_URL at build time
+
+See docs/DEPLOYMENT.md for the complete production deployment runbook and environment-variable checklist.
+
 ## 🔐 Security Notes
 
 - Browser authentication uses an `HttpOnly`, `SameSite` session cookie instead of storing JWTs in `localStorage`.
@@ -200,7 +214,7 @@ GitHub Actions runs these checks automatically on pushes and pull requests.
 
 ## 📌 Status
 
-Development / learning project with an actively maintained full-stack implementation.
+Production-deployment ready; live hosting still requires connecting the repository to a hosting provider and supplying production infrastructure/secrets.
 
 ## 👨‍💻 Author
 
