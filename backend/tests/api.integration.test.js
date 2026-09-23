@@ -147,6 +147,15 @@ test("GET /health returns a healthy service response", async () => {
   assert.deepEqual(await response.json(), { status: "ok" });
 });
 
+integrationTest("GET /health/ready reports database readiness", async () => {
+  const response = await request("/health/ready");
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {
+    status: "ready",
+    database: "connected"
+  });
+});
+
 test("GET / returns the API service status", async () => {
   const response = await request("/");
   assert.equal(response.status, 200);
