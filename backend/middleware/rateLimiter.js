@@ -112,6 +112,13 @@ const createRedisRateLimiter = ({ windowMs, max, message }) => async (req, res, 
 
 const createRateLimiter = (options) => {
   if (redisConfigured) return createRedisRateLimiter(options);
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "Redis rate limiting is required in production. Configure REDIS_REST_URL and REDIS_REST_TOKEN."
+    );
+  }
+
   return createLocalRateLimiter(options);
 };
 
