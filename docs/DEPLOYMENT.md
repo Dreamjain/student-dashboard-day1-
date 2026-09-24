@@ -40,8 +40,12 @@ For student-dashboard-api:
 | TRUST_PROXY | true |
 | COOKIE_SECURE | true |
 | COOKIE_SAMESITE | lax |
+| REDIS_REST_URL | Upstash Redis REST endpoint |
+| REDIS_REST_TOKEN | Upstash Redis server-side token |
 
 The Blueprint generates JWT_SECRET rather than storing it in Git. The production cookie must be secure because the deployed application uses HTTPS.
+
+For distributed login rate limiting, create a production Redis database (Upstash Redis REST is the documented setup) and supply its HTTPS endpoint and server-side token. Keep the token only in the API service environment; never add it to the frontend or repository.
 
 TRUST_PROXY=true is intentional for the Render reverse-proxy deployment. Keep it enabled only when the service is actually deployed behind the trusted proxy topology described by the application configuration.
 
@@ -75,9 +79,11 @@ API readiness:
 
     GET https://<your-api-service>.onrender.com/health/ready
 
-Expected when MongoDB is reachable: {"status":"ready","database":"connected"}
+Expected when MongoDB and Redis are reachable:
 
-A 503 from /health/ready means the API process is running but its database connection is not ready.
+    {"status":"ready","database":"connected","rateLimitStore":"connected"}
+
+A 503 from /health/ready means the API process is running but MongoDB or the production rate-limit store is not ready.
 
 Frontend verification:
 1. Open the frontend Render URL.
@@ -95,6 +101,8 @@ Render HTTP health checks use the configured path to decide whether a web servic
 - [ ] NODE_ENV=production
 - [ ] JWT_SECRET is generated/stored by Render
 - [ ] MONGO_URI is a production database
+- [ ] REDIS_REST_URL points to the production Redis REST endpoint
+- [ ] REDIS_REST_TOKEN is stored only in the API environment
 - [ ] COOKIE_SECURE=true
 - [ ] CLIENT_ORIGIN is the exact frontend origin
 - [ ] Frontend VITE_API_BASE_URL points to the deployed API
