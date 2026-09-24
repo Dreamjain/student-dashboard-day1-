@@ -160,7 +160,7 @@ Scores must be numeric values from 0 to 100. Duplicate student/subject mark reco
 | Method | Endpoint | Access | Response |
 |---|---|---|---|
 | GET | `/health` | Public | `{"status":"ok"}` |
-| GET | `/health/ready` | Public | Database readiness; returns `503` until MongoDB is connected |
+| GET | `/health/ready` | Public | Database readiness; in production also requires the shared rate-limit store |
 | GET | `/` | Public | Service status |
 | GET | `/auth/csrf` | Public | CSRF bootstrap |
 
@@ -228,7 +228,7 @@ Unexpected server errors do not expose stack traces to clients.
 
 ## Rate limiting
 
-Student and faculty login endpoints are protected by an in-memory rate limiter.
+Student and faculty login endpoints are protected by a distributed Redis-backed rate limiter in production.
 
 Current policy:
 
@@ -236,8 +236,12 @@ Current policy:
 - 60-second window
 - Excess attempts return `429`
 - `Retry-After` is included when the limit is exceeded
+- Redis operations use an atomic server-side Lua script
+- Redis failures fail closed for the protected login endpoint with `503`
+- Local development falls back to a process-local limiter when Redis credentials are not configured
+- Production requires Redis credentials and does not use the local fallback
 
-The current limiter is process-local. A shared store should be used before horizontally scaling the API.
+The production configuration uses a Redis REST endpoint such as Upstash Redis. The Redis URL and server-side token must never be exposed to the frontend or committed to Git.
 
 ## Environment configuration
 
@@ -252,6 +256,8 @@ Copy `backend/.env.example` to `.env`.
 | `TRUST_PROXY` | No | Enable only behind a trusted reverse proxy |
 | `COOKIE_SECURE` | No | Enables Secure cookies |
 | `COOKIE_SAMESITE` | No | Cookie SameSite policy; defaults to lax |
+| `REDIS_REST_URL` | Production | Redis REST endpoint for distributed rate limiting |
+| `REDIS_REST_TOKEN` | Production | Server-side Redis REST authentication token |
 
 For production, use HTTPS, a strong random JWT secret, explicit frontend origins, and Secure cookies.
 
