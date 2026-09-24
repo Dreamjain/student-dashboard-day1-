@@ -9,6 +9,7 @@ const securityHeaders = require("./middleware/securityHeaders");
 const errorHandler = require("./middleware/errorHandler");
 const csrfProtection = require("./middleware/csrf");
 const { setPreAuthCsrfCookie, clearSessionCookies } = require("./utils/sessionCookies");
+const { checkRedisHealth, isRedisConfigured } = require("./middleware/rateLimiter");
 const studentRoutes = require("./routes/studentRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const marksRoutes = require("./routes/marksRoutes");
@@ -34,7 +35,7 @@ app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-app.get("/health/ready", (_req, res) => {
+app.get("/health/ready", async (_req, res) => {
   const databaseReady = mongoose.connection.readyState === 1;
 
   if (!databaseReady) {
@@ -44,9 +45,27 @@ app.get("/health/ready", (_req, res) => {
     });
   }
 
+  if (!isRedisConfigured()) {
+    return res.status(200).json({
+      status: "ready",
+      database: "connected"
+    });
+  }
+
+  const redis = await checkRedisHealth();
+
+  if (!redis.healthy) {
+    return res.status(503).json({
+      status: "not_ready",
+      database: "connected",
+      rateLimitStore: "disconnected"
+    });
+  }
+
   return res.status(200).json({
     status: "ready",
-    database: "connected"
+    database: "connected",
+    rateLimitStore: "connected"
   });
 });
 
