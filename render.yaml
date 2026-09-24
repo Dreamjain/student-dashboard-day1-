@@ -21,6 +21,10 @@ services:
         value: "true"
       - key: COOKIE_SAMESITE
         value: lax
+      - key: REDIS_REST_URL
+        sync: false
+      - key: REDIS_REST_TOKEN
+        sync: false
 
   - type: web
     runtime: static
