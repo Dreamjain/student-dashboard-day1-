@@ -18,6 +18,7 @@ The repository includes a frontend-based preview that documents the implemented 
 - React component-based UI
 - REST API communication with Axios
 - MongoDB persistence with Mongoose
+- Redis-backed distributed login rate limiting in production
 - Backend health endpoint for operational checks
 - Automated frontend and backend CI validation
 - Documented REST API, authentication, authorization, CSRF, errors, and environment configuration
@@ -150,7 +151,8 @@ See docs/DEPLOYMENT.md for the complete production deployment runbook and enviro
 - Production cookies require HTTPS; configure `COOKIE_SECURE=true` and use an appropriate `COOKIE_SAMESITE` value.
 - Set `CLIENT_ORIGIN` to explicit frontend origins when using the API from another origin.
 - `TRUST_PROXY` should only be enabled when the API is actually behind a trusted reverse proxy.
-- The in-memory login rate limiter is intended for a single-process deployment; a shared store is required if the API is horizontally scaled.
+- Production login rate limiting uses a shared Redis REST store so multiple API instances share the same limit.
+- Redis failures fail closed for the protected login endpoint; local development uses an in-memory fallback when Redis is not configured.
 
 ## 📚 API Documentation
 
