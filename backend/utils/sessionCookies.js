@@ -79,7 +79,7 @@ const setSessionCookies = (res, { accessToken, refreshToken }) => {
   const refreshTtl = Number(process.env.REFRESH_TOKEN_TTL_SECONDS) || 7 * 24 * 60 * 60;
   setCookie(res, AUTH_COOKIE, accessToken, true, accessTtl);
   setCookie(res, REFRESH_COOKIE, refreshToken, true, refreshTtl);
-  setCookie(res, CSRF_COOKIE, createCsrfToken(accessToken), false, accessTtl);
+  setCookie(res, CSRF_COOKIE, createCsrfToken(refreshToken), false, refreshTtl);
 };
 
 const setPreAuthCsrfCookie = (res) => {
