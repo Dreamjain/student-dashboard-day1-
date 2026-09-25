@@ -3,6 +3,9 @@ const crypto = require("crypto");
 const AUTH_COOKIE = process.env.NODE_ENV === "production"
   ? "__Host-student-dashboard"
   : "studentDashboardAuth";
+const REFRESH_COOKIE = process.env.NODE_ENV === "production"
+  ? "__Host-student-dashboard-refresh"
+  : "studentDashboardRefresh";
 const CSRF_COOKIE = process.env.NODE_ENV === "production"
   ? "__Host-student-dashboard-csrf"
   : "studentDashboardCsrf";
@@ -17,10 +20,11 @@ if (sameSite === "none" && !isSecure) {
   throw new Error("COOKIE_SAMESITE=none requires secure cookies");
 }
 
-const cookieOptions = (httpOnly) => [
+const cookieOptions = (httpOnly, maxAgeSeconds) => [
   "Path=/",
   httpOnly ? "HttpOnly" : "",
   isSecure ? "Secure" : "",
+  maxAgeSeconds == null ? "" : `Max-Age=${Math.max(0, Math.floor(maxAgeSeconds))}`,
   `SameSite=${sameSite.charAt(0).toUpperCase() + sameSite.slice(1)}`
 ].filter(Boolean).join("; ");
 
@@ -62,32 +66,37 @@ const verifyCsrfToken = (token, sessionBinding) => {
   return crypto.timingSafeEqual(Buffer.from(providedMac), Buffer.from(expectedMac));
 };
 
-const setCookie = (res, name, value, httpOnly) => {
-  res.append("Set-Cookie", `${name}=${encodeURIComponent(value)}; ${cookieOptions(httpOnly)}`);
+const setCookie = (res, name, value, httpOnly, maxAgeSeconds) => {
+  res.append("Set-Cookie", `${name}=${encodeURIComponent(value)}; ${cookieOptions(httpOnly, maxAgeSeconds)}`);
 };
 
 const clearCookie = (res, name, httpOnly) => {
-  res.append("Set-Cookie", `${name}=; Max-Age=0; ${cookieOptions(httpOnly)}`);
+  res.append("Set-Cookie", `${name}=; Max-Age=0; ${cookieOptions(httpOnly, 0)}`);
 };
 
-const setSessionCookies = (res, token) => {
-  setCookie(res, AUTH_COOKIE, token, true);
-  setCookie(res, CSRF_COOKIE, createCsrfToken(token), false);
+const setSessionCookies = (res, { accessToken, refreshToken }) => {
+  const accessTtl = Number(process.env.ACCESS_TOKEN_TTL_SECONDS) || 15 * 60;
+  const refreshTtl = Number(process.env.REFRESH_TOKEN_TTL_SECONDS) || 7 * 24 * 60 * 60;
+  setCookie(res, AUTH_COOKIE, accessToken, true, accessTtl);
+  setCookie(res, REFRESH_COOKIE, refreshToken, true, refreshTtl);
+  setCookie(res, CSRF_COOKIE, createCsrfToken(accessToken), false, accessTtl);
 };
 
 const setPreAuthCsrfCookie = (res) => {
   const token = createCsrfToken("preauth");
-  setCookie(res, CSRF_COOKIE, token, false);
+  setCookie(res, CSRF_COOKIE, token, false, 10 * 60);
   return token;
 };
 
 const clearSessionCookies = (res) => {
   clearCookie(res, AUTH_COOKIE, true);
+  clearCookie(res, REFRESH_COOKIE, true);
   clearCookie(res, CSRF_COOKIE, false);
 };
 
 module.exports = {
   AUTH_COOKIE,
+  REFRESH_COOKIE,
   CSRF_COOKIE,
   parseCookies,
   createCsrfToken,
