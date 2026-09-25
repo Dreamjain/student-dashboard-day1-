@@ -2,7 +2,7 @@ const Student = require("../models/studentModel");
 const Attendance = require("../models/attendanceModel");
 const Marks = require("../models/marksModel");
 const { verifyPassword } = require("../utils/password");
-const { sign } = require("../utils/jwt");
+const { issueSession } = require("../utils/sessionManager");
 const { validateCredentials, validateStudentInput, validateStudentUpdate } = require("../utils/validation");
 const { setSessionCookies } = require("../utils/sessionCookies");
 
@@ -73,8 +73,8 @@ exports.loginStudent = async (req, res) => {
     return res.status(401).json({ message: "Invalid roll number or password" });
   }
 
-  const token = sign({ id: String(student._id), role: "student" });
-  setSessionCookies(res, token);
+  const session = await issueSession(student._id, "student");
+  setSessionCookies(res, session);
   res.json({
     user: {
       id: student._id,
