@@ -2,7 +2,7 @@ const Student = require("../models/studentModel");
 const Attendance = require("../models/attendanceModel");
 const Marks = require("../models/marksModel");
 const { verifyPassword } = require("../utils/password");
-const { issueSession } = require("../utils/sessionManager");
+const { issueSession, revokeUserSessions } = require("../utils/sessionManager");
 const { validateCredentials, validateStudentInput, validateStudentUpdate } = require("../utils/validation");
 const { setSessionCookies } = require("../utils/sessionCookies");
 
@@ -32,12 +32,18 @@ exports.updateStudent = async (req, res) => {
     runValidators: true
   });
   if (!updatedStudent) return res.status(404).json({ message: "Student not found" });
+
+  if (validation.data.password) {
+    await revokeUserSessions(req.params.id);
+  }
+
   res.json(updatedStudent);
 };
 
 exports.deleteStudent = async (req, res) => {
   const deletedStudent = await Student.findByIdAndDelete(req.params.id);
   if (!deletedStudent) return res.status(404).json({ message: "Student not found" });
+  await revokeUserSessions(req.params.id);
   res.json({ message: "Student deleted successfully" });
 };
 
