@@ -22,8 +22,6 @@ const csrfProtection = (req, res, next) => {
   const isLoginRequest = req.method === "POST" && (
     req.path === "/students/login" || req.path === "/api/faculty/login"
   );
-  const isRefreshRequest = req.method === "POST" && req.path === "/auth/refresh";
-
   if (!authToken && !refreshToken && !isLoginRequest) return next();
 
   const csrfCookie = cookies[CSRF_COOKIE];
@@ -35,7 +33,7 @@ const csrfProtection = (req, res, next) => {
 
   let binding = "preauth";
 
-  if (isRefreshRequest && refreshToken) {
+  if (refreshToken) {
     binding = refreshToken;
   } else if (authToken) {
     try {
