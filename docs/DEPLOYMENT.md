@@ -40,6 +40,8 @@ For student-dashboard-api:
 | TRUST_PROXY | true |
 | COOKIE_SECURE | true |
 | COOKIE_SAMESITE | lax |
+| ACCESS_TOKEN_TTL_SECONDS | 900 (15 minutes) |
+| REFRESH_TOKEN_TTL_SECONDS | 604800 (7 days) |
 | REDIS_REST_URL | Upstash Redis REST endpoint |
 | REDIS_REST_TOKEN | Upstash Redis server-side token |
 
@@ -110,6 +112,8 @@ Render HTTP health checks use the configured path to decide whether a web servic
 - [ ] API /health/ready returns 200
 - [ ] Frontend loads successfully
 - [ ] Login/logout works
+- [ ] Access tokens are short-lived and refresh sessions rotate
+- [ ] Refresh-token replay is rejected
 - [ ] Browser cookies are Secure/HttpOnly as intended
 - [ ] No production secrets are committed
 - [ ] Latest GitHub Actions run is green before deployment
