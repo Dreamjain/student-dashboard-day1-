@@ -80,6 +80,13 @@ const rotateRefreshToken = async (refreshToken) => {
   };
 };
 
+const revokeUserSessions = async (userId) => {
+  await RefreshSession.updateMany(
+    { userId: String(userId), revokedAt: null },
+    { $set: { revokedAt: new Date() } }
+  );
+};
+
 const revokeRefreshToken = async (refreshToken) => {
   if (typeof refreshToken !== "string" || !refreshToken) return;
   await RefreshSession.updateOne(
@@ -94,5 +101,6 @@ module.exports = {
   hashRefreshToken,
   issueSession,
   rotateRefreshToken,
-  revokeRefreshToken
+  revokeRefreshToken,
+  revokeUserSessions
 };
