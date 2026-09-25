@@ -50,13 +50,16 @@ const loginSession = async (path, body) => {
   const responseBody = await loginResponse.json();
   const setCookies = getSetCookies(loginResponse);
   const authCookie = getCookie(setCookies, "studentDashboardAuth");
+  const refreshCookie = getCookie(setCookies, "studentDashboardRefresh");
   const sessionCsrfCookie = getCookie(setCookies, "studentDashboardCsrf");
   assert.ok(authCookie);
+  assert.ok(refreshCookie);
   assert.ok(sessionCsrfCookie);
 
   return {
-    cookie: `${authCookie}; ${sessionCsrfCookie}`,
+    cookie: `${authCookie}; ${refreshCookie}; ${sessionCsrfCookie}`,
     csrf: decodeURIComponent(sessionCsrfCookie.slice(sessionCsrfCookie.indexOf("=") + 1)),
+    refresh: refreshCookie,
     body: responseBody
   };
 };
@@ -382,4 +385,82 @@ integrationTest("faculty registration and login work through the API", async () 
     password: "secondpass123"
   });
   assert.ok(loginSessionResponse.body.facultyId);
+});
+
+
+integrationTest("refresh endpoint rotates the refresh token and detects replay", async () => {
+  const originalRefresh = studentSession.refresh;
+  const refreshResponse = await request("/auth/refresh", {
+    method: "POST",
+    headers: {
+      cookie: studentSession.cookie,
+      "x-csrf-token": studentSession.csrf
+    }
+  });
+
+  assert.equal(refreshResponse.status, 200);
+  assert.deepEqual(await refreshResponse.json(), { message: "Session refreshed" });
+
+  const setCookies = getSetCookies(refreshResponse);
+  const newAuthCookie = getCookie(setCookies, "studentDashboardAuth");
+  const newRefreshCookie = getCookie(setCookies, "studentDashboardRefresh");
+  const newCsrfCookie = getCookie(setCookies, "studentDashboardCsrf");
+  assert.ok(newAuthCookie);
+  assert.ok(newRefreshCookie);
+  assert.ok(newCsrfCookie);
+  assert.notEqual(newRefreshCookie, originalRefresh);
+
+  const rotatedSession = {
+    cookie: `${newAuthCookie}; ${newRefreshCookie}; ${newCsrfCookie}`,
+    csrf: decodeURIComponent(newCsrfCookie.slice(newCsrfCookie.indexOf("=") + 1)),
+    refresh: newRefreshCookie
+  };
+
+  const authenticatedResponse = await authRequest(`/students/summary/${student._id}`, rotatedSession);
+  assert.equal(authenticatedResponse.status, 200);
+
+  const replayResponse = await request("/auth/refresh", {
+    method: "POST",
+    headers: {
+      cookie: studentSession.cookie,
+      "x-csrf-token": studentSession.csrf
+    }
+  });
+  assert.equal(replayResponse.status, 401);
+  assert.deepEqual(await replayResponse.json(), { message: "Invalid or expired refresh token" });
+
+  const familyRevokedResponse = await request("/auth/refresh", {
+    method: "POST",
+    headers: {
+      cookie: rotatedSession.cookie,
+      "x-csrf-token": rotatedSession.csrf
+    }
+  });
+  assert.equal(familyRevokedResponse.status, 401);
+  assert.deepEqual(await familyRevokedResponse.json(), { message: "Invalid or expired refresh token" });
+});
+
+integrationTest("logout revokes the refresh session", async () => {
+  const session = await loginSession("/students/login", {
+    rollNumber: "INTEGRATION-STUDENT",
+    password: "studentpass123"
+  });
+
+  const logoutResponse = await request("/auth/logout", {
+    method: "POST",
+    headers: {
+      cookie: session.cookie,
+      "x-csrf-token": session.csrf
+    }
+  });
+  assert.equal(logoutResponse.status, 204);
+
+  const refreshResponse = await request("/auth/refresh", {
+    method: "POST",
+    headers: {
+      cookie: session.cookie,
+      "x-csrf-token": session.csrf
+    }
+  });
+  assert.equal(refreshResponse.status, 401);
 });
