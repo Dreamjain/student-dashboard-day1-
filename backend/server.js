@@ -8,7 +8,8 @@ const { buildCorsOptions } = require("./utils/cors");
 const securityHeaders = require("./middleware/securityHeaders");
 const errorHandler = require("./middleware/errorHandler");
 const csrfProtection = require("./middleware/csrf");
-const { setPreAuthCsrfCookie, clearSessionCookies } = require("./utils/sessionCookies");
+const { REFRESH_COOKIE, parseCookies, setPreAuthCsrfCookie, setSessionCookies, clearSessionCookies } = require("./utils/sessionCookies");
+const { rotateRefreshToken, revokeRefreshToken } = require("./utils/sessionManager");
 const { checkRedisHealth, isRedisConfigured } = require("./middleware/rateLimiter");
 const studentRoutes = require("./routes/studentRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
@@ -74,9 +75,33 @@ app.get("/auth/csrf", (_req, res) => {
   res.json({ message: "CSRF token ready" });
 });
 
-app.post("/auth/logout", (_req, res) => {
-  clearSessionCookies(res);
-  res.status(204).end();
+app.post("/auth/refresh", async (req, res, next) => {
+  const cookies = parseCookies(req.headers.cookie);
+  const refreshToken = cookies[REFRESH_COOKIE];
+
+  if (!refreshToken) {
+    return res.status(401).json({ message: "Refresh session required" });
+  }
+
+  try {
+    const session = await rotateRefreshToken(refreshToken);
+    setSessionCookies(res, session);
+    return res.json({ message: "Session refreshed" });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post("/auth/logout", async (req, res, next) => {
+  const cookies = parseCookies(req.headers.cookie);
+
+  try {
+    await revokeRefreshToken(cookies[REFRESH_COOKIE]);
+    clearSessionCookies(res);
+    return res.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
 });
 
 app.use("/students", studentRoutes);
