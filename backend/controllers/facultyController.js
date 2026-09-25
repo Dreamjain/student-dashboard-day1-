@@ -1,6 +1,6 @@
 const Faculty = require("../models/facultyModel");
 const { verifyPassword } = require("../utils/password");
-const { sign } = require("../utils/jwt");
+const { issueSession } = require("../utils/sessionManager");
 const { normalizeEmail, validateFacultyInput } = require("../utils/validation");
 const { setSessionCookies } = require("../utils/sessionCookies");
 
@@ -18,8 +18,8 @@ const loginFaculty = async (req, res) => {
     return res.status(401).json({ message: "Invalid email or password" });
   }
 
-  const token = sign({ id: String(faculty._id), role: "faculty" });
-  setSessionCookies(res, token);
+  const session = await issueSession(faculty._id, "faculty");
+  setSessionCookies(res, session);
   res.json({ message: "Login successful", facultyId: faculty._id });
 };
 
