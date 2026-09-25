@@ -18,7 +18,7 @@ Request:
 }
 ```
 
-On success, the API sets an HttpOnly authentication cookie and a signed CSRF cookie.
+On success, the API sets short-lived HttpOnly access and rotating HttpOnly refresh cookies plus a signed CSRF cookie. The access token defaults to 15 minutes; the refresh session defaults to 7 days.
 
 Response:
 ```json
@@ -62,11 +62,17 @@ Response:
 
 Issues a pre-authentication CSRF cookie for browser clients. The login requests must send that value in the `X-CSRF-Token` header.
 
+### Refresh session
+
+`POST /auth/refresh`
+
+Rotates the current refresh token and issues a new short-lived access token. The previous refresh token is immediately revoked. Browser clients must send the CSRF header. Reuse of a revoked refresh token revokes the entire refresh-token family.
+
 ### Logout
 
 `POST /auth/logout`
 
-Clears the browser authentication and CSRF cookies. Browser clients must send the CSRF header.
+Revokes the current refresh session and clears the browser authentication, refresh, and CSRF cookies. Browser clients must send the CSRF header.
 
 ## Student endpoints
 
@@ -182,7 +188,7 @@ For state-changing browser requests (`POST`, `PUT`, `DELETE`), the frontend read
 X-CSRF-Token: <csrf-token>
 ```
 
-The backend verifies that the signed CSRF token is bound to the current session. Login uses a separate pre-authentication binding.
+The backend verifies that the signed CSRF token is bound to the current rotating refresh session. Login uses a separate pre-authentication binding.
 
 Trusted non-browser integrations that explicitly send:
 
@@ -256,6 +262,8 @@ Copy `backend/.env.example` to `.env`.
 | `TRUST_PROXY` | No | Enable only behind a trusted reverse proxy |
 | `COOKIE_SECURE` | No | Enables Secure cookies |
 | `COOKIE_SAMESITE` | No | Cookie SameSite policy; defaults to lax |
+| `ACCESS_TOKEN_TTL_SECONDS` | No | Short-lived access-token lifetime; defaults to 900 seconds |
+| `REFRESH_TOKEN_TTL_SECONDS` | No | Refresh-session lifetime; defaults to 604800 seconds |
 | `REDIS_REST_URL` | Production | Redis REST endpoint for distributed rate limiting |
 | `REDIS_REST_TOKEN` | Production | Server-side Redis REST authentication token |
 
