@@ -88,6 +88,10 @@ app.post("/auth/refresh", async (req, res, next) => {
     setSessionCookies(res, session);
     return res.json({ message: "Session refreshed" });
   } catch (error) {
+    if (error.message === "Invalid or expired refresh token") {
+      clearSessionCookies(res);
+      return res.status(401).json({ message: "Invalid or expired refresh token" });
+    }
     return next(error);
   }
 });
