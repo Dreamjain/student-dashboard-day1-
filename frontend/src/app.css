@@ -1,33 +1,46 @@
 .app-shell {
   min-height: 100vh;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #0f172a, #020617);
-  color: #f8fafc;
+  padding: 18px 18px 28px;
   box-sizing: border-box;
+  background:
+    radial-gradient(circle at 80% 0%, rgba(79, 70, 229, 0.18), transparent 30%),
+    linear-gradient(135deg, #0b1120 0%, #020617 55%, #0f172a 100%);
+  color: #f8fafc;
 }
 
 .app-heading {
-  text-align: center;
-  margin: 0 0 24px;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .login-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
-  max-width: 900px;
-  margin: 0 auto;
+  width: min(920px, 100%);
+  margin: 9vh auto 0;
 }
 
 .main-content {
-  margin-left: 220px;
-  padding: 20px;
+  margin-left: 236px;
+  padding: 12px 14px 0;
+  min-width: 0;
 }
 
 @media (max-width: 760px) {
-  .main-content {
-    margin-left: 0;
-    padding: 10px 0;
+  .app-shell { padding: 10px; }
+  .main-content { margin-left: 0; padding: 4px 2px 0; }
+  .login-grid { margin-top: 5vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
