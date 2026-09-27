@@ -26,7 +26,7 @@ function Attendance({ studentId }) {
 
   return (
     <div style={{ marginTop: "20px" }}>
-      <h2>Attendance History</h2>
+      <div className="data-page-header"><div><p className="eyebrow">Attendance</p><h2>Attendance history</h2><p>Track your class participation over time.</p></div><button className="refresh-button" onClick={fetchAttendance} disabled={loading} type="button">{loading ? "Refreshing..." : "Refresh"}</button></div>
 
       <button onClick={fetchAttendance} disabled={loading} style={{ marginBottom: "20px" }}>
         {loading ? "Refreshing..." : "🔄 Refresh"}
@@ -37,13 +37,13 @@ function Attendance({ studentId }) {
       {!loading && !error && attendance.length === 0 && <p>No attendance records found.</p>}
 
       {!loading && !error && attendance.length > 0 && (
-        <ul>
+        <div className="data-list">
           {attendance.map((record) => (
             <li key={record._id}>
               {record.subject || "Class"} → {new Date(record.date).toLocaleDateString()} ({record.status})
             </li>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
