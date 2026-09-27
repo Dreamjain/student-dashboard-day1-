@@ -26,7 +26,7 @@ function Timetable() {
 
   return (
     <div style={{ marginTop: "20px" }}>
-      <h2>Timetable</h2>
+      <div className="data-page-header"><div><p className="eyebrow">Weekly schedule</p><h2>Timetable</h2><p>Keep your class schedule close at hand.</p></div><button className="refresh-button" onClick={fetchTimetable} disabled={loading} type="button">{loading ? "Refreshing..." : "Refresh"}</button></div>
       <button onClick={fetchTimetable} disabled={loading} style={{ marginBottom: "20px" }}>
         {loading ? "Refreshing..." : "🔄 Refresh"}
       </button>
@@ -34,13 +34,13 @@ function Timetable() {
       {!loading && error && <p role="alert">{error}</p>}
       {!loading && !error && timetable.length === 0 && <p>No timetable found.</p>}
       {!loading && !error && timetable.length > 0 && (
-        <ul>
+        <div className="data-list">
           {timetable.map((item) => (
             <li key={item._id}>
               {item.day} → {item.subject} ({item.time})
             </li>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
