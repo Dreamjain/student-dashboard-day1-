@@ -1,5 +1,5 @@
 import "./sidebar.css";
-import { FaHome, FaChartBar, FaClock, FaClipboardCheck, FaSignOutAlt } from "react-icons/fa";
+import { FaHome, FaChartBar, FaClock, FaClipboardCheck, FaSignOutAlt, FaBars } from "react-icons/fa";
 
 function Sidebar({ setActiveTab, setStudentId, activeTab }) {
   const handleLogout = () => {
@@ -16,7 +16,8 @@ function Sidebar({ setActiveTab, setStudentId, activeTab }) {
 
   return (
     <aside className="sidebar" aria-label="Student navigation">
-      <h2>🎓 Campus</h2>
+      <div className="sidebar-brand"><span>🎓</span><div><strong>Campus</strong><small>Academics</small></div></div>
+      <span className="sidebar-section">Navigation</span>
       {navigation.map(([tab, label, icon]) => (
         <button
           key={label}
