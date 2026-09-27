@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import api from "../api/client";
 import { getApiErrorMessage } from "../api/errors";
+import "./data-pages.css";
 
 function Marks({ studentId }) {
   const [marks, setMarks] = useState([]);
