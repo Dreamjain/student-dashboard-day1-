@@ -26,7 +26,7 @@ function Marks({ studentId }) {
 
   return (
     <div style={{ marginTop: "20px" }}>
-      <h2>Marks</h2>
+      <div className="data-page-header"><div><p className="eyebrow">Academic performance</p><h2>Marks</h2><p>Review your latest subject scores.</p></div><button className="refresh-button" onClick={fetchMarks} disabled={loading} type="button">{loading ? "Refreshing..." : "Refresh"}</button></div>
 
       <button onClick={fetchMarks} disabled={loading} style={{ marginBottom: "20px" }}>
         {loading ? "Refreshing..." : "🔄 Refresh"}
@@ -37,13 +37,13 @@ function Marks({ studentId }) {
       {!loading && !error && marks.length === 0 && <p>No marks found.</p>}
 
       {!loading && !error && marks.length > 0 && (
-        <ul>
+        <div className="data-list">
           {marks.map((mark) => (
             <li key={mark._id}>
               {mark.subject} → {mark.score}
             </li>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
