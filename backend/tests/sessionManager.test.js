@@ -59,7 +59,10 @@ test("rotateRefreshToken revokes the old token and creates a replacement in the 
   let replacement;
   let replacementLink;
 
-  RefreshSession.findOneAndUpdate = async () => originalSession;
+  RefreshSession.findOneAndUpdate = async () => {
+    originalSession.revokedAt = new Date();
+    return originalSession;
+  };
   RefreshSession.create = async (data) => {
     replacement = data;
     return data;
