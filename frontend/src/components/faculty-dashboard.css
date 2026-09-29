@@ -1,0 +1,170 @@
+.faculty-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 8px 8px 42px;
+}
+
+.faculty-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.faculty-header h1 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: -0.03em;
+}
+
+.faculty-subtitle {
+  margin: 7px 0 0;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.faculty-actions {
+  display: flex;
+  gap: 9px;
+}
+
+.faculty-button {
+  border: 1px solid rgba(148,163,184,.18);
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: rgba(30,41,59,.82);
+  color: #e2e8f0;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.faculty-button:hover:not(:disabled) { border-color: rgba(129,140,248,.5); }
+.faculty-button.danger { color: #fda4af; }
+.faculty-button:disabled { opacity: .55; cursor: wait; }
+
+.faculty-tabs {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 18px;
+  padding: 5px;
+  overflow-x: auto;
+  border: 1px solid rgba(148,163,184,.11);
+  border-radius: 14px;
+  background: rgba(15,23,42,.7);
+}
+
+.faculty-tabs button {
+  border: 0;
+  border-radius: 9px;
+  padding: 10px 14px;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.faculty-tabs button.active {
+  background: rgba(99,102,241,.16);
+  color: #e0e7ff;
+}
+
+.faculty-notice {
+  margin-bottom: 15px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.faculty-notice.error { border: 1px solid rgba(248,113,113,.25); background: rgba(127,29,29,.18); color: #fecaca; }
+.faculty-notice.success { border: 1px solid rgba(74,222,128,.2); background: rgba(22,101,52,.18); color: #bbf7d0; }
+
+.faculty-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.faculty-search,
+.faculty-form input,
+.faculty-form select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(148,163,184,.16);
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: rgba(15,23,42,.85);
+  color: #e2e8f0;
+}
+
+.faculty-search { max-width: 420px; }
+
+.student-table {
+  overflow: auto;
+  border: 1px solid rgba(148,163,184,.12);
+  border-radius: 15px;
+}
+
+.student-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr .8fr .8fr auto;
+  gap: 12px;
+  align-items: center;
+  min-width: 720px;
+  padding: 13px 15px;
+  border-bottom: 1px solid rgba(148,163,184,.08);
+  background: rgba(15,23,42,.66);
+}
+
+.student-row:last-child { border-bottom: 0; }
+.student-row.header { background: rgba(30,41,59,.72); color: #64748b; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.student-row strong { color: #e2e8f0; font-size: 13px; }
+.student-row span { color: #94a3b8; font-size: 12px; }
+.row-actions { display: flex; gap: 6px; }
+.row-actions button { padding: 7px 9px; border: 1px solid rgba(148,163,184,.14); border-radius: 8px; background: transparent; color: #a5b4fc; cursor: pointer; }
+.row-actions button.delete { color: #fda4af; }
+
+.faculty-panel {
+  padding: 18px;
+  border: 1px solid rgba(148,163,184,.12);
+  border-radius: 16px;
+  background: rgba(15,23,42,.68);
+}
+
+.faculty-panel h2 { margin: 0; color: #f8fafc; font-size: 19px; }
+.faculty-panel > p { color: #94a3b8; font-size: 13px; }
+
+.faculty-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.faculty-form label { display: grid; gap: 6px; color: #94a3b8; font-size: 12px; font-weight: 700; }
+.faculty-form .full { grid-column: 1 / -1; }
+.faculty-form button { justify-self: start; }
+
+.student-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+  padding: 13px;
+  border-radius: 12px;
+  background: rgba(30,41,59,.6);
+}
+
+.student-summary strong { color: #f8fafc; }
+.student-summary span { color: #94a3b8; font-size: 12px; }
+
+@media (max-width: 700px) {
+  .faculty-header { align-items: flex-start; flex-direction: column; }
+  .faculty-actions, .faculty-actions button { width: 100%; }
+  .faculty-form { grid-template-columns: 1fr; }
+  .faculty-form .full { grid-column: auto; }
+}
