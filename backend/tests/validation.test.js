@@ -138,3 +138,49 @@ test("validateAttendanceInput normalizes status and subject", () => {
     status: "present",
   });
 });
+
+
+test("validateStudentUpdate rejects an empty update and normalizes roll numbers", () => {
+  assert.equal(
+    validateStudentUpdate({}).message,
+    "At least one student field is required"
+  );
+  assert.deepEqual(validateStudentUpdate({ rollNumber: " ra-101 " }), {
+    valid: true,
+    data: { rollNumber: "RA-101" }
+  });
+});
+
+test("validateMarksInput accepts boundary scores and rejects non-numeric values", () => {
+  assert.equal(validateMarksInput({
+    studentId: "507f1f77bcf86cd799439011",
+    subject: "DBMS",
+    score: 0
+  }).valid, true);
+  assert.equal(validateMarksInput({
+    studentId: "507f1f77bcf86cd799439011",
+    subject: "DBMS",
+    score: 100
+  }).valid, true);
+  assert.equal(validateMarksInput({
+    studentId: "507f1f77bcf86cd799439011",
+    subject: "DBMS",
+    score: "not-a-number"
+  }).valid, false);
+});
+
+test("validateAttendanceInput rejects unsupported status and invalid dates", () => {
+  assert.equal(validateAttendanceInput({
+    studentId: "507f1f77bcf86cd799439011",
+    date: "2026-09-01",
+    subject: "DBMS",
+    status: "late"
+  }).message, "Status must be present or absent");
+
+  assert.equal(validateAttendanceInput({
+    studentId: "507f1f77bcf86cd799439011",
+    date: "not-a-date",
+    subject: "DBMS",
+    status: "present"
+  }).message, "A valid date is required");
+});
