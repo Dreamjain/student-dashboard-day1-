@@ -167,6 +167,7 @@ Scores must be numeric values from 0 to 100. Duplicate student/subject mark reco
 |---|---|---|---|
 | GET | `/health` | Public | `{"status":"ok"}` |
 | GET | `/health/ready` | Public | Database readiness; in production also requires the shared rate-limit store |
+| GET | `/health/metrics` | Public | Process uptime, request/error counters, and memory metrics |
 | GET | `/` | Public | Service status |
 | GET | `/auth/csrf` | Public | CSRF bootstrap |
 
@@ -307,3 +308,15 @@ The documentation UI is read-only by default (`Try it out` is disabled) and does
 - [Main project README](../README.md)
 - [Environment example](../backend/.env.example)
 - [CI workflow](../.github/workflows/quality.yml)
+
+## Operational monitoring
+
+The API emits structured JSON logs to stdout/stderr so hosting platforms such as Render can collect and search them without requiring a third-party logging dependency.
+
+Each HTTP request receives an `X-Request-ID` response header and logs include the request ID, HTTP method, route, status code, and duration. Client errors are logged as warnings and server errors as errors.
+
+Sensitive fields such as passwords, tokens, cookies, authorization headers, database URIs, and Redis credentials are redacted by the logger before output.
+
+`GET /health/metrics` exposes lightweight operational metrics for uptime, request/error counters, and Node.js memory usage. It contains no credentials or request bodies.
+
+For production operations, use `/health/ready` for deployment readiness and `/health/metrics` plus platform logs for basic runtime monitoring. Avoid putting secrets or personal data into log messages.
