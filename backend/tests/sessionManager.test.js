@@ -49,7 +49,7 @@ test("issueSession stores a hashed refresh token and returns an access token", a
 test("rotateRefreshToken revokes the old token and creates a replacement in the same family", async () => {
   const originalSession = {
     _id: "session-1",
-    tokenHash: hashRefreshToken("refresh-token-original"),
+    tokenHash: hashRefreshToken("refresh-token-original-abcdefghijklmnopqrstuvwxyz-1234567890"),
     userId: "student-123",
     role: "student",
     familyId: "family-1",
@@ -73,7 +73,7 @@ test("rotateRefreshToken revokes the old token and creates a replacement in the 
     return {};
   };
 
-  const result = await rotateRefreshToken("refresh-token-original");
+  const result = await rotateRefreshToken("refresh-token-original-abcdefghijklmnopqrstuvwxyz-1234567890");
 
   assert.ok(result.accessToken);
   assert.ok(result.refreshToken);
@@ -90,7 +90,7 @@ test("reusing a revoked refresh token revokes the remaining session family", asy
 
   RefreshSession.findOneAndUpdate = async () => null;
   RefreshSession.findOne = async () => ({
-    tokenHash: hashRefreshToken("reused-token"),
+    tokenHash: hashRefreshToken("reused-token-abcdefghijklmnopqrstuvwxyz-1234567890"),
     familyId: "family-reuse",
     revokedAt: new Date()
   });
@@ -103,7 +103,7 @@ test("reusing a revoked refresh token revokes the remaining session family", asy
   };
 
   await assert.rejects(
-    () => rotateRefreshToken("reused-token"),
+    () => rotateRefreshToken("reused-token-abcdefghijklmnopqrstuvwxyz-1234567890"),
     /Invalid or expired refresh token/
   );
   assert.equal(familyRevoked, true);
