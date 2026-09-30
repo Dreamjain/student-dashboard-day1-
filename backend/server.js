@@ -1,6 +1,8 @@
 require("dotenv").config();
 
 const express = require("express");
+const fs = require("fs");
+const path = require("path");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const connectDB = require("./config/db");
@@ -18,6 +20,7 @@ const timetableRoutes = require("./routes/timetableRoutes");
 const facultyRoutes = require("./routes/facultyRoutes");
 
 const app = express();
+const openapiSpec = JSON.parse(fs.readFileSync(path.join(__dirname, "../docs/openapi.json"), "utf8"));
 const PORT = Number(process.env.PORT) || 5000;
 
 app.set("trust proxy", process.env.TRUST_PROXY === "true" ? 1 : false);
@@ -30,6 +33,14 @@ app.use(csrfProtection);
 
 app.get("/", (_req, res) => {
   res.json({ service: "Student Dashboard API", status: "running" });
+});
+
+app.get("/openapi.json", (_req, res) => {
+  res.json(openapiSpec);
+});
+
+app.get("/docs", (_req, res) => {
+  res.sendFile(path.join(__dirname, "../docs/swagger.html"));
 });
 
 app.get("/health", (_req, res) => {
