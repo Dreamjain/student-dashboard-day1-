@@ -292,6 +292,16 @@ npm run build
 
 GitHub Actions runs backend tests against MongoDB and runs frontend tests, linting, and a production build on pushes and pull requests.
 
+## OpenAPI / Swagger
+
+The machine-readable OpenAPI 3.0 specification is available at [`docs/openapi.json`](./openapi.json). When the API is running locally, interactive Swagger UI is available at:
+
+```text
+http://localhost:5000/docs
+```
+
+The documentation UI is read-only by default (`Try it out` is disabled) and does not embed server secrets. Authentication remains cookie/CSRF based for browser clients, with bearer JWT support documented for trusted integrations.
+
 ## Related documentation
 
 - [Main project README](../README.md)
