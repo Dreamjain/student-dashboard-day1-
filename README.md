@@ -214,9 +214,34 @@ GitHub Actions runs these checks automatically on pushes and pull requests.
 - Production build and lint validation
 - CI quality gates with GitHub Actions
 
-## 📌 Status
+## 📌 Engineering Roadmap
 
-Production-deployment ready; live hosting still requires connecting the repository to a hosting provider and supplying production infrastructure/secrets.
+### Phase 2 progress
+
+| Task | Status |
+|---|---|
+| 2.1 Production deployment | ✅ Complete |
+| 2.2 Redis rate limiting | ✅ Complete |
+| 2.3 Session / refresh-token hardening | ✅ Complete |
+| 2.4 Complete dashboard UX | ✅ Complete |
+| 2.5 Faculty management | ✅ Complete |
+| 2.6 Automated test coverage | ✅ Complete |
+| 2.7 OpenAPI / Swagger | ⏳ Next |
+| 2.8 Logging & monitoring | ⏳ |
+| 2.9 Docker + Compose | ⏳ |
+| 2.10 CI/CD deployment pipeline | ⏳ |
+| 2.11 Architecture documentation | ⏳ |
+| 2.12 Portfolio polish | ⏳ |
+
+### Current quality status
+
+- Backend integration and unit tests run in GitHub Actions.
+- Frontend tests, ESLint, and production builds run in CI.
+- Dependency audits run as part of the quality workflow.
+- Session, refresh-token, cookie, CSRF, and validation behavior have dedicated automated coverage.
+- Latest Phase 2.6 verification: GitHub Actions **Run #274 — passed**.
+
+Production deployment configuration is included in the repository; live hosting still requires connecting the repository to a hosting provider and supplying production infrastructure/secrets.
 
 ## 👨‍💻 Author
 
