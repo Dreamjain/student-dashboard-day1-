@@ -26,6 +26,7 @@ test("OpenAPI document is exposed and contains the documented API surface", asyn
   for (const route of [
     "/health",
     "/health/ready",
+    "/health/metrics",
     "/auth/csrf",
     "/auth/refresh",
     "/auth/logout",
