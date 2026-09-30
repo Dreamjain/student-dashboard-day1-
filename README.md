@@ -21,6 +21,7 @@ The repository includes a frontend-based preview that documents the implemented 
 - Redis-backed distributed login rate limiting in production
 - Backend health endpoint for operational checks
 - Automated frontend and backend CI validation
+- OpenAPI 3.0 API contract with interactive Swagger UI
 - Documented REST API, authentication, authorization, CSRF, errors, and environment configuration
 
 ## 🏗️ Architecture
@@ -158,6 +159,8 @@ See docs/DEPLOYMENT.md for the complete production deployment runbook and enviro
 
 See [`docs/API.md`](docs/API.md) for the complete API reference and security/authentication flow.
 
+Interactive API documentation is available at `/docs` when the backend is running. The machine-readable contract is [`docs/openapi.json`](docs/openapi.json).
+
 ## 🧪 Quality Checks
 
 Backend syntax validation:
@@ -226,7 +229,7 @@ GitHub Actions runs these checks automatically on pushes and pull requests.
 | 2.4 Complete dashboard UX | ✅ Complete |
 | 2.5 Faculty management | ✅ Complete |
 | 2.6 Automated test coverage | ✅ Complete |
-| 2.7 OpenAPI / Swagger | ⏳ Next |
+| 2.7 OpenAPI / Swagger | 🟡 Implemented — CI verification pending |
 | 2.8 Logging & monitoring | ⏳ |
 | 2.9 Docker + Compose | ⏳ |
 | 2.10 CI/CD deployment pipeline | ⏳ |
