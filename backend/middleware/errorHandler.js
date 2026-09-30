@@ -1,3 +1,5 @@
+const logger = require("../utils/logger");
+
 const errorHandler = (err, _req, res, _next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
     return res.status(400).json({ message: "Invalid JSON payload" });
@@ -15,7 +17,7 @@ const errorHandler = (err, _req, res, _next) => {
     return res.status(409).json({ message: "Resource already exists" });
   }
 
-  console.error("Unhandled request error:", err);
+  logger.error("Unhandled request error", { requestId: _req.requestId, errorName: err.name, errorMessage: err.message });
   return res.status(500).json({ message: "Internal server error" });
 };
 
