@@ -22,6 +22,8 @@ The repository includes a frontend-based preview that documents the implemented 
 - Backend health endpoint for operational checks
 - Automated frontend and backend CI validation
 - OpenAPI 3.0 API contract with interactive Swagger UI
+- Structured JSON request/error logging with request IDs and sensitive-field redaction
+- Lightweight runtime metrics at `/health/metrics`
 - Documented REST API, authentication, authorization, CSRF, errors, and environment configuration
 
 ## 🏗️ Architecture
@@ -230,7 +232,7 @@ GitHub Actions runs these checks automatically on pushes and pull requests.
 | 2.5 Faculty management | ✅ Complete |
 | 2.6 Automated test coverage | ✅ Complete |
 | 2.7 OpenAPI / Swagger | 🟡 Implemented — CI verification pending |
-| 2.8 Logging & monitoring | ⏳ |
+| 2.8 Logging & monitoring | 🟡 Implemented — CI verification pending |
 | 2.9 Docker + Compose | ⏳ |
 | 2.10 CI/CD deployment pipeline | ⏳ |
 | 2.11 Architecture documentation | ⏳ |
