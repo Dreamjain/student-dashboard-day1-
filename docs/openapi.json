@@ -448,6 +448,17 @@
         }
       }
     },
+    "/health/metrics": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Get lightweight runtime metrics",
+        "responses": {
+          "200": {
+            "description": "Runtime metrics"
+          }
+        }
+      }
+    },
     "/health/ready": {
       "get": {
         "tags": [
