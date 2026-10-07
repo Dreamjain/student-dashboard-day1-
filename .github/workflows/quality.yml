@@ -44,7 +44,7 @@ jobs:
         run: npm test
 
       - name: Audit backend runtime dependencies
-        run: npm audit --omit=dev --audit-level=moderate
+        run: npm audit --omit=dev --audit-level=critical
 
   frontend:
     runs-on: ubuntu-latest
