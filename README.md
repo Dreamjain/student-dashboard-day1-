@@ -1,5 +1,7 @@
 # 🎓 Student Dashboard
 
+[![Quality](https://github.com/Dreamjain/student-dashboard-day1-/actions/workflows/quality.yml/badge.svg)](https://github.com/Dreamjain/student-dashboard-day1-/actions/workflows/quality.yml)
+
 A full-stack academic dashboard built with **React + Vite** on the frontend and **Node.js + Express + MongoDB** on the backend. Students can view attendance, marks, timetable data, and academic summaries through a component-based dashboard.
 
 ## 🖼️ Project Preview
@@ -39,6 +41,18 @@ Express REST API
      ▼
 MongoDB
 ```
+
+## 🐳 Docker
+
+Run the complete local stack with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Then open `http://localhost:8080` for the frontend or `http://localhost:5000/health` for the API health check.
+
+Stop the stack with `docker compose down`. MongoDB data is persisted in the `mongo_data` Docker volume. The Compose setup is for local development; production secrets belong in the deployment environment.
 
 ## 🧩 Frontend
 
@@ -184,6 +198,13 @@ npm run build
 
 GitHub Actions runs these checks automatically on pushes and pull requests.
 
+## 📚 Engineering Documentation
+
+- [`docs/API.md`](docs/API.md) — REST API, authentication and security reference
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — system architecture and deployment topology
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — production deployment runbook
+- [`docs/PORTFOLIO.md`](docs/PORTFOLIO.md) — recruiter-facing project presentation
+
 ## 📁 Project Structure
 
 ```text
@@ -231,12 +252,12 @@ GitHub Actions runs these checks automatically on pushes and pull requests.
 | 2.4 Complete dashboard UX | ✅ Complete |
 | 2.5 Faculty management | ✅ Complete |
 | 2.6 Automated test coverage | ✅ Complete |
-| 2.7 OpenAPI / Swagger | 🟡 Implemented — CI verification pending |
-| 2.8 Logging & monitoring | 🟡 Implemented — CI verification pending |
-| 2.9 Docker + Compose | ⏳ |
-| 2.10 CI/CD deployment pipeline | ⏳ |
-| 2.11 Architecture documentation | ⏳ |
-| 2.12 Portfolio polish | ⏳ |
+| 2.7 OpenAPI / Swagger | ✅ Complete |
+| 2.8 Logging & monitoring | ✅ Complete |
+| 2.9 Docker + Compose | ✅ Complete |
+| 2.10 CI/CD deployment pipeline | ✅ Complete |
+| 2.11 Architecture documentation | ✅ Complete |
+| 2.12 Portfolio polish | ✅ Complete |
 
 ### Current quality status
 
@@ -244,7 +265,9 @@ GitHub Actions runs these checks automatically on pushes and pull requests.
 - Frontend tests, ESLint, and production builds run in CI.
 - Dependency audits run as part of the quality workflow.
 - Session, refresh-token, cookie, CSRF, and validation behavior have dedicated automated coverage.
-- Latest Phase 2.6 verification: GitHub Actions **Run #274 — passed**.
+- Phase 2.8 verification: GitHub Actions **Run #291 — passed**.
+- Docker images are built by CI after backend/frontend quality checks.
+- Main-branch deployment automation is configured through an optional Render deploy hook.
 
 Production deployment configuration is included in the repository; live hosting still requires connecting the repository to a hosting provider and supplying production infrastructure/secrets.
 
