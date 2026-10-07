@@ -1,0 +1,24 @@
+name: Deploy Production
+
+on:
+  workflow_run:
+    workflows: ["Full-Stack Quality"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+    steps:
+      - name: Trigger Render deployment
+        if: ${{ env.RENDER_DEPLOY_HOOK != '' }}
+        run: curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK"
+      - name: Skip deployment when hook is not configured
+        if: ${{ env.RENDER_DEPLOY_HOOK == '' }}
+        run: echo "RENDER_DEPLOY_HOOK is not configured; quality verification completed without a deployment."
