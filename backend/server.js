@@ -19,6 +19,7 @@ const attendanceRoutes = require("./routes/attendanceRoutes");
 const marksRoutes = require("./routes/marksRoutes");
 const timetableRoutes = require("./routes/timetableRoutes");
 const facultyRoutes = require("./routes/facultyRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 
 const app = express();
 const openapiSpec = JSON.parse(fs.readFileSync(path.join(__dirname, "../docs/openapi.json"), "utf8"));
@@ -175,6 +176,7 @@ app.use("/attendance", attendanceRoutes);
 app.use("/marks", marksRoutes);
 app.use("/timetable", timetableRoutes);
 app.use("/api/faculty", facultyRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ message: "Route not found" });
