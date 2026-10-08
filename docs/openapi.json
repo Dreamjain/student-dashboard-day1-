@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Student Dashboard API",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "description": "REST API for student and faculty authentication, academic records, timetable management, health checks, session management, and the AI Academic Copilot."
   },
   "servers": [
@@ -1233,6 +1233,170 @@
         "responses": {
           "200": {
             "description": "AI academic analysis"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "description": "AI rate limit exceeded"
+          },
+          "503": {
+            "description": "AI provider is not configured or unavailable"
+          }
+        }
+      }
+    },
+    "/api/ai/attendance": {
+      "get": {
+        "tags": [
+          "AI Academic Copilot"
+        ],
+        "summary": "Explain attendance risk for the authenticated student",
+        "security": [
+          {
+            "accessCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful AI response"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "description": "AI rate limit exceeded"
+          },
+          "503": {
+            "description": "AI provider is not configured or unavailable"
+          }
+        }
+      }
+    },
+    "/api/ai/planner": {
+      "get": {
+        "tags": [
+          "AI Academic Copilot"
+        ],
+        "summary": "Generate a personalized seven-day study plan",
+        "security": [
+          {
+            "accessCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful AI response"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "description": "AI rate limit exceeded"
+          },
+          "503": {
+            "description": "AI provider is not configured or unavailable"
+          }
+        }
+      }
+    },
+    "/api/ai/trends": {
+      "get": {
+        "tags": [
+          "AI Academic Copilot"
+        ],
+        "summary": "Return deterministic academic performance snapshot and attendance risks",
+        "security": [
+          {
+            "accessCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Academic performance snapshot"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "description": "AI rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/api/ai/chat": {
+      "post": {
+        "tags": [
+          "AI Academic Copilot"
+        ],
+        "summary": "Ask the Academic Copilot a question using authenticated student data",
+        "security": [
+          {
+            "accessCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "message"
+                ],
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful AI response"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
