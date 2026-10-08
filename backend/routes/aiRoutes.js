@@ -17,6 +17,6 @@ router.get("/analysis", authenticate, requireRole("student"), aiRateLimiter, get
 router.get("/attendance", authenticate, requireRole("student"), aiRateLimiter, attendance);
 router.get("/planner", authenticate, requireRole("student"), aiRateLimiter, planner);
 router.post("/chat", authenticate, requireRole("student"), aiRateLimiter, chat);
-router.get("/trends", authenticate, requireRole("student"), trends);
+router.get("/trends", authenticate, requireRole("student"), aiRateLimiter, trends);
 
 module.exports = router;
