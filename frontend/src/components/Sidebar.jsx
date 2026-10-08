@@ -11,7 +11,8 @@ function Sidebar({ setActiveTab, setStudentId, activeTab }) {
     [null, "Dashboard", <FaHome aria-hidden="true" />],
     ["marks", "Marks", <FaChartBar aria-hidden="true" />],
     ["attendance", "Attendance", <FaClipboardCheck aria-hidden="true" />],
-    ["timetable", "Timetable", <FaClock aria-hidden="true" />],\n    ["ai", "AI Assistant", <FaRobot aria-hidden="true" />]
+    ["timetable", "Timetable", <FaClock aria-hidden="true" />],
+    ["ai", "AI Assistant", <FaRobot aria-hidden="true" />]
   ];
 
   return (
