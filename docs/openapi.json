@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Student Dashboard API",
-    "version": "1.2.0",
-    "description": "REST API for student and faculty authentication, academic records, timetable management, health checks, and session management."
+    "version": "1.3.0",
+    "description": "REST API for student and faculty authentication, academic records, timetable management, health checks, session management, and the AI Academic Copilot."
   },
   "servers": [
     {
@@ -39,6 +39,10 @@
     {
       "name": "Timetable",
       "description": "Timetable entries"
+    },
+    {
+      "name": "AI Academic Copilot",
+      "description": "Authenticated AI analysis based on the current student's academic records."
     }
   ],
   "securitySchemes": {
@@ -450,7 +454,9 @@
     },
     "/health/metrics": {
       "get": {
-        "tags": ["Health"],
+        "tags": [
+          "Health"
+        ],
         "summary": "Get lightweight runtime metrics",
         "responses": {
           "200": {
@@ -1206,6 +1212,42 @@
           },
           "409": {
             "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/ai/analysis": {
+      "get": {
+        "tags": [
+          "AI Academic Copilot"
+        ],
+        "summary": "Analyze the authenticated student's academic performance with AI",
+        "security": [
+          {
+            "accessCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AI academic analysis"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "description": "AI rate limit exceeded"
+          },
+          "503": {
+            "description": "AI provider is not configured or unavailable"
           }
         }
       }
