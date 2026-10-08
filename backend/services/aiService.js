@@ -1,5 +1,6 @@
 const OPENAI_API_URL = "https://api.openai.com/v1/responses";
-const DEFAULT_MODEL = process.env.OPENAI_MODEL || "gpt-6-luna";
+const DEFAULT_MODEL = "gpt-6-luna";
+const getModel = () => process.env.OPENAI_MODEL || DEFAULT_MODEL;
 
 const isAIConfigured = () => Boolean(process.env.OPENAI_API_KEY);
 
@@ -27,7 +28,7 @@ const requestAI = async (input, { fetchImpl = fetch } = {}) => {
       "content-type": "application/json"
     },
     body: JSON.stringify({
-      model: DEFAULT_MODEL,
+      model: getModel(),
       instructions: buildAcademicInstructions(),
       input,
       max_output_tokens: 700
@@ -52,7 +53,7 @@ const requestAI = async (input, { fetchImpl = fetch } = {}) => {
   }
 
   return {
-    model: payload.model || DEFAULT_MODEL,
+    model: payload.model || getModel(),
     text: output
   };
 };
@@ -60,6 +61,7 @@ const requestAI = async (input, { fetchImpl = fetch } = {}) => {
 module.exports = {
   OPENAI_API_URL,
   DEFAULT_MODEL,
+  getModel,
   isAIConfigured,
   buildAcademicInstructions,
   requestAI
