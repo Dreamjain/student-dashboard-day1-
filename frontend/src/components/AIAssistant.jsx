@@ -3,6 +3,7 @@ import { FaLightbulb, FaSyncAlt } from "react-icons/fa";
 import api from "../api/client";
 import { getApiErrorMessage } from "../api/errors";
 import "./ai-assistant.css";
+import "./ai-tools.css";
 
 function AIAssistant() {
   const [result, setResult] = useState(null);
