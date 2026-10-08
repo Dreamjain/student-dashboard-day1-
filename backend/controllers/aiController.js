@@ -92,4 +92,4 @@ exports.getAcademicAnalysis = async (req, res, next) => {
   }
 };
 
-module.exports = { buildAcademicContext, getAcademicAnalysis };
+module.exports = { buildAcademicContext, getAcademicAnalysis: exports.getAcademicAnalysis };
