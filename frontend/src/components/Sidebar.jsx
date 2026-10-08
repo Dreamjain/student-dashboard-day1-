@@ -1,5 +1,5 @@
 import "./sidebar.css";
-import { FaHome, FaChartBar, FaClock, FaClipboardCheck, FaSignOutAlt, FaBars } from "react-icons/fa";
+import { FaHome, FaChartBar, FaClock, FaClipboardCheck, FaSignOutAlt, FaBars, FaRobot } from "react-icons/fa";
 
 function Sidebar({ setActiveTab, setStudentId, activeTab }) {
   const handleLogout = () => {
@@ -11,7 +11,7 @@ function Sidebar({ setActiveTab, setStudentId, activeTab }) {
     [null, "Dashboard", <FaHome aria-hidden="true" />],
     ["marks", "Marks", <FaChartBar aria-hidden="true" />],
     ["attendance", "Attendance", <FaClipboardCheck aria-hidden="true" />],
-    ["timetable", "Timetable", <FaClock aria-hidden="true" />]
+    ["timetable", "Timetable", <FaClock aria-hidden="true" />],\n    ["ai", "AI Assistant", <FaRobot aria-hidden="true" />]
   ];
 
   return (
