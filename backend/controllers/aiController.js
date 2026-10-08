@@ -1,15 +1,17 @@
 const Student = require("../models/studentModel");
 const Attendance = require("../models/attendanceModel");
 const Marks = require("../models/marksModel");
+const Timetable = require("../models/timetableModel");
 const { requestAI, isAIConfigured } = require("../services/aiService");
 
 const round = (value) => Number(value.toFixed(2));
 
 const buildAcademicContext = async (studentId) => {
-  const [student, attendanceRecords, marksRecords] = await Promise.all([
+  const [student, attendanceRecords, marksRecords, timetableRecords] = await Promise.all([
     Student.findById(studentId).select("name department year"),
     Attendance.find({ studentId }).select("subject date status -_id").sort({ date: -1 }),
-    Marks.find({ studentId }).select("subject score -_id").sort({ score: 1 })
+    Marks.find({ studentId }).select("subject score -_id").sort({ score: 1 }),
+    Timetable.find().select("day subject time -_id").sort({ day: 1, time: 1 })
   ]);
 
   if (!student) return null;
@@ -36,6 +38,24 @@ const buildAcademicContext = async (studentId) => {
     percentage: value.total === 0 ? 0 : round((value.present / value.total) * 100)
   }));
 
+  const strongestSubjects = marksRecords
+    .slice()
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map((mark) => ({ subject: mark.subject, score: mark.score }));
+
+  const weakestSubjects = marksRecords
+    .slice()
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 3)
+    .map((mark) => ({ subject: mark.subject, score: mark.score }));
+
+  const timetable = timetableRecords.map((entry) => ({
+    day: entry.day,
+    subject: entry.subject,
+    time: entry.time
+  }));
+
   return {
     student: {
       name: student.name,
@@ -49,6 +69,9 @@ const buildAcademicContext = async (studentId) => {
       averageMarks
     },
     attendanceBySubject,
+    strongestSubjects,
+    weakestSubjects,
+    timetable,
     marks: marksRecords.map((mark) => ({
       subject: mark.subject,
       score: mark.score
