@@ -7,6 +7,7 @@ import Timetable from "./components/Timetable";
 import Sidebar from "./components/Sidebar";
 import FacultyLogin from "./components/FacultyLogin";
 import FacultyDashboard from "./components/FacultyDashboard";
+import AIAssistant from "./components/AIAssistant";
 import ErrorBoundary from "./components/ErrorBoundary";
 import api, { USER_KEY } from "./api/client";
 import "./app.css";
@@ -68,6 +69,7 @@ function App() {
               {activeTab === "marks" && <Marks studentId={studentId} />}
               {activeTab === "attendance" && <Attendance studentId={studentId} />}
               {activeTab === "timetable" && <Timetable />}
+              {activeTab === "ai" && <AIAssistant />}
             </main>
           </>
         ) : (
