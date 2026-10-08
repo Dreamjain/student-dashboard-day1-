@@ -1,5 +1,5 @@
 import "./sidebar.css";
-import { FaHome, FaChartBar, FaClock, FaClipboardCheck, FaSignOutAlt, FaBars, FaRobot } from "react-icons/fa";
+import { FaHome, FaChartBar, FaClock, FaClipboardCheck, FaSignOutAlt, FaRobot } from "react-icons/fa";
 
 function Sidebar({ setActiveTab, setStudentId, activeTab }) {
   const handleLogout = () => {
