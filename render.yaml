@@ -2,9 +2,9 @@ services:
   - type: web
     runtime: node
     name: student-dashboard-api
-    rootDir: backend
-    buildCommand: npm ci
-    startCommand: npm start
+    rootDir: .
+    buildCommand: cd backend && npm ci
+    startCommand: cd backend && npm start
     healthCheckPath: /health/ready
     envVars:
       - key: NODE_ENV
