@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const timetableSchema = new mongoose.Schema(
+// Timetable is intentionally institution/class-wide in the current product contract.\n// It is not student-owned data, so authenticated students read the shared schedule.\nconst timetableSchema = new mongoose.Schema(
   {
     day: {
       type: String,
