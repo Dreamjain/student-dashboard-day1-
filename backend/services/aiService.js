@@ -1,5 +1,6 @@
 const OPENAI_API_URL = "https://api.openai.com/v1/responses";
 const DEFAULT_MODEL = "gpt-6-luna";
+const { MAX_OUTPUT_TOKENS } = require("./aiGuard");
 const getModel = () => process.env.OPENAI_MODEL || DEFAULT_MODEL;
 
 const isAIConfigured = () => Boolean(process.env.OPENAI_API_KEY);
@@ -31,7 +32,7 @@ const requestAI = async (input, { fetchImpl = fetch } = {}) => {
       model: getModel(),
       instructions: buildAcademicInstructions(),
       input,
-      max_output_tokens: 700
+      max_output_tokens: MAX_OUTPUT_TOKENS
     })
   });
 
