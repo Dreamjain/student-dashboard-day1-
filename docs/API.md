@@ -152,9 +152,9 @@ Scores must be numeric values from 0 to 100. Duplicate student/subject mark reco
 | Method | Endpoint | Access | Purpose |
 |---|---|---|---|
 | POST | `/timetable` | Faculty | Add timetable entry |
-| GET | `/timetable` | Authenticated | Read timetable |
+| GET | `/timetable` | Authenticated | Read the shared academic timetable |
 
-## Faculty endpoints
+The timetable is intentionally **shared academic schedule data**, not student-owned data. All authenticated students receive the same timetable; faculty manage the shared entries. If the product later requires section- or student-specific schedules, the data model and authorization rules must be changed together.\n\n## Faculty endpoints
 
 | Method | Endpoint | Access | Purpose |
 |---|---|---|---|
