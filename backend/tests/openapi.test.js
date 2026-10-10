@@ -51,9 +51,29 @@ test("OpenAPI document is exposed and contains the documented API surface", asyn
     assert.ok(spec.paths[route], `missing OpenAPI path: ${route}`);
   }
 
-  assert.equal(spec.paths["/api/ai/analysis"].get.security.length, 2);
+  const protectedAiOperations = [
+    ["/api/ai/analysis", "get"],
+    ["/api/ai/attendance", "get"],
+    ["/api/ai/planner", "get"],
+    ["/api/ai/trends", "get"],
+    ["/api/ai/chat", "post"]
+  ];
+
+  for (const [route, method] of protectedAiOperations) {
+    const operation = spec.paths[route][method];
+    assert.ok(operation, `missing documented AI operation: ${method.toUpperCase()} ${route}`);
+    assert.ok(operation.security?.length, `AI operation must require authentication: ${route}`);
+    assert.ok(operation.responses["401"], `AI operation must document 401: ${route}`);
+    assert.ok(operation.responses["403"], `AI operation must document 403: ${route}`);
+    assert.ok(operation.responses["429"], `AI operation must document rate limiting: ${route}`);
+  }
+
+  const chatSchema = spec.paths["/api/ai/chat"].post.requestBody.content["application/json"].schema;
   assert.equal(spec.paths["/api/ai/chat"].post.requestBody.required, true);
-  assert.equal(spec.paths["/api/ai/chat"].post.requestBody.content["application/json"].schema.properties.message.maxLength, 2000);
+  assert.ok(chatSchema.required.includes("message"));
+  assert.equal(chatSchema.properties.message.type, "string");
+  assert.equal(chatSchema.properties.message.minLength, 1);
+  assert.equal(chatSchema.properties.message.maxLength, 2000);
 });
 
 test("Swagger UI page is available without exposing credentials", async () => {
