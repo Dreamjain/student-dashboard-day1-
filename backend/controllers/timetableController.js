@@ -6,7 +6,8 @@ const addTimetable = async (req, res) => {
   res.status(201).json(savedTimetable);
 };
 
-// Timetable is shared academic schedule data; do not scope this query to req.user.id.\nconst getTimetable = async (_req, res) => {
+// Timetable is shared academic schedule data; do not scope this query to req.user.id.
+const getTimetable = async (_req, res) => {
   const timetable = await Timetable.find().sort({ day: 1 });
   res.json(timetable);
 };
