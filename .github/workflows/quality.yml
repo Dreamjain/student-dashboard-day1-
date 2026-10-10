@@ -92,3 +92,18 @@ jobs:
 
       - name: Build frontend image
         run: docker build --file frontend/Dockerfile --tag student-dashboard-frontend:ci frontend
+
+      - name: Smoke test the Compose stack
+        run: |
+          docker compose up -d --build
+          trap 'docker compose down -v' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:5000/health/ready > /tmp/readiness.json; then
+              cat /tmp/readiness.json
+              break
+            fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1:5000/health
+          curl --fail --silent http://127.0.0.1:8080/ > /dev/null
+          docker compose ps
