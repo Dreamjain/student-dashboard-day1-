@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 
 const originalApiKey = process.env.OPENAI_API_KEY;
 const originalModel = process.env.OPENAI_MODEL;
-const { MAX_OUTPUT_TOKENS } = require("../services/aiGuard");
+const { MAX_OUTPUT_TOKENS, MAX_OUTPUT_CHARS } = require("../services/aiGuard");
 
 test.after(() => {
   if (originalApiKey === undefined) delete process.env.OPENAI_API_KEY;
@@ -73,5 +73,23 @@ test("AI service rejects unsuccessful provider responses", async () => {
       })
     }),
     (error) => error.status === 429 && /provider request failed/.test(error.message)
+  );
+});
+
+test("AI service rejects oversized provider output", async () => {
+  process.env.OPENAI_API_KEY = "test-key";
+
+  const { requestAI } = require("../services/aiService");
+
+  await assert.rejects(
+    () => requestAI("test", {
+      fetchImpl: async () => ({
+        ok: true,
+        async json() {
+          return { output_text: "x".repeat(MAX_OUTPUT_CHARS + 1) };
+        }
+      })
+    }),
+    (error) => error.code === "AI_OUTPUT_TOO_LARGE"
   );
 });
