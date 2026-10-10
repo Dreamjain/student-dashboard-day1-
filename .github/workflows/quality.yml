@@ -88,7 +88,7 @@ jobs:
         run: docker compose config
 
       - name: Build backend image
-        run: docker build --file backend/Dockerfile --tag student-dashboard-backend:ci backend
+        run: docker build --file backend/Dockerfile --tag student-dashboard-backend:ci .
 
       - name: Build frontend image
         run: docker build --file frontend/Dockerfile --tag student-dashboard-frontend:ci frontend
