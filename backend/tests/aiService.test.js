@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 
 const originalApiKey = process.env.OPENAI_API_KEY;
 const originalModel = process.env.OPENAI_MODEL;
+const { MAX_OUTPUT_TOKENS } = require("../services/aiGuard");
 
 test.after(() => {
   if (originalApiKey === undefined) delete process.env.OPENAI_API_KEY;
@@ -55,6 +56,7 @@ test("AI service sends academic context to the Responses API and returns output 
   assert.equal(body.model, "test-model");
   assert.equal(body.input, '{"academicData":{"averageMarks":72}}');
   assert.match(body.instructions, /Academic Copilot/);
+  assert.equal(body.max_output_tokens, MAX_OUTPUT_TOKENS);
 });
 
 test("AI service rejects unsuccessful provider responses", async () => {
