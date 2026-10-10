@@ -20,12 +20,12 @@ const getClientKey = (req) => {
   return crypto.createHash("sha256").update(address).digest("hex");
 };
 
-const createLocalRateLimiter = ({ windowMs, max, message }) => {
+const createLocalRateLimiter = ({ windowMs, max, message, keyGenerator = getClientKey }) => {
   const attempts = new Map();
   localLimiters.add(attempts);
 
   return (req, res, next) => {
-    const key = getClientKey(req);
+    const key = keyGenerator(req);
     const now = Date.now();
     const current = attempts.get(key);
 
@@ -89,9 +89,9 @@ const executeRedisRateLimit = async ({ key, windowMs, max }) => {
   };
 };
 
-const createRedisRateLimiter = ({ windowMs, max, message }) => async (req, res, next) => {
+const createRedisRateLimiter = ({ windowMs, max, message, keyGenerator = getClientKey }) => async (req, res, next) => {
   try {
-    const key = `student-dashboard:rate-limit:${getClientKey(req)}`;
+    const key = `student-dashboard:rate-limit:${keyGenerator(req)}`;
     const result = await executeRedisRateLimit({ key, windowMs, max });
 
     if (!result.allowed) {
