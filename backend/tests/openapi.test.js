@@ -41,10 +41,19 @@ test("OpenAPI document is exposed and contains the documented API surface", asyn
     "/marks/student/{id}",
     "/timetable",
     "/api/faculty/login",
-    "/api/faculty/register"
+    "/api/faculty/register",
+    "/api/ai/analysis",
+    "/api/ai/attendance",
+    "/api/ai/planner",
+    "/api/ai/trends",
+    "/api/ai/chat"
   ]) {
     assert.ok(spec.paths[route], `missing OpenAPI path: ${route}`);
   }
+
+  assert.equal(spec.paths["/api/ai/analysis"].get.security.length, 2);
+  assert.equal(spec.paths["/api/ai/chat"].post.requestBody.required, true);
+  assert.equal(spec.paths["/api/ai/chat"].post.requestBody.content["application/json"].schema.properties.message.maxLength, 2000);
 });
 
 test("Swagger UI page is available without exposing credentials", async () => {
