@@ -246,7 +246,7 @@ GitHub Actions runs these checks automatically on pushes and pull requests.
 
 | Task | Status |
 |---|---|
-| 2.1 Production deployment | ✅ Complete |
+| 2.1 Production deployment | ⚠️ Configuration ready; live deployment requires hosting setup |
 | 2.2 Redis rate limiting | ✅ Complete |
 | 2.3 Session / refresh-token hardening | ✅ Complete |
 | 2.4 Complete dashboard UX | ✅ Complete |
@@ -265,9 +265,9 @@ GitHub Actions runs these checks automatically on pushes and pull requests.
 - Frontend tests, ESLint, and production builds run in CI.
 - Dependency audits run as part of the quality workflow.
 - Session, refresh-token, cookie, CSRF, and validation behavior have dedicated automated coverage.
-- Phase 2.8 verification: GitHub Actions **Run #291 — passed**.
-- Docker images are built by CI after backend/frontend quality checks.
-- Main-branch deployment automation is configured through an optional Render deploy hook.
+- Phase 2.8 verification: the latest CI run must be green before release.
+- Docker images are built and the complete Compose stack is smoke-tested by CI after backend/frontend quality checks.
+- Main-branch deployment automation is configured through an optional Render deploy hook; the hook must be connected before a live deployment occurs.
 
 Production deployment configuration is included in the repository; live hosting still requires connecting the repository to a hosting provider and supplying production infrastructure/secrets.
 
