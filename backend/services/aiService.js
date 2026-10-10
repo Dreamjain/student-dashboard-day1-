@@ -1,6 +1,6 @@
 const OPENAI_API_URL = "https://api.openai.com/v1/responses";
 const DEFAULT_MODEL = "gpt-6-luna";
-const { MAX_OUTPUT_TOKENS } = require("./aiGuard");
+const { MAX_OUTPUT_TOKENS, MAX_OUTPUT_CHARS } = require("./aiGuard");
 const getModel = () => process.env.OPENAI_MODEL || DEFAULT_MODEL;
 
 const isAIConfigured = () => Boolean(process.env.OPENAI_API_KEY);
@@ -50,6 +50,12 @@ const requestAI = async (input, { fetchImpl = fetch } = {}) => {
   if (!output) {
     const error = new Error("AI provider returned an empty response");
     error.code = "AI_EMPTY_RESPONSE";
+    throw error;
+  }
+
+  if (output.length > MAX_OUTPUT_CHARS) {
+    const error = new Error("AI provider response exceeded the allowed size");
+    error.code = "AI_OUTPUT_TOO_LARGE";
     throw error;
   }
 
