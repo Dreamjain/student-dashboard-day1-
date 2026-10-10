@@ -10,7 +10,8 @@ const router = express.Router();
 const aiRateLimiter = createRateLimiter({
   windowMs: 60 * 1000,
   max: 10,
-  message: "Too many AI requests. Please try again later."
+  message: "Too many AI requests. Please try again later.",
+  keyGenerator: (req) => `student:${req.user.id}`
 });
 
 router.get("/analysis", authenticate, requireRole("student"), aiRateLimiter, getAcademicAnalysis);
