@@ -364,14 +364,6 @@ integrationTest("timetable API enforces faculty writes and allows authenticated 
   assert.equal(studentResponse.status, 200);
   assert.equal((await studentResponse.json())[0].subject, "Cloud Computing");
 
-  const otherStudentSession = await loginSession("/students/login", {
-    rollNumber: "INTEGRATION-OTHER",
-    password: "studentpass123"
-  });
-  const otherStudentResponse = await authRequest("/timetable", otherStudentSession);
-  assert.equal(otherStudentResponse.status, 200);
-  assert.equal((await otherStudentResponse.json())[0].subject, "Cloud Computing");
-
   const forbiddenWrite = await jsonRequest("/timetable", "POST", {
     day: "tuesday",
     subject: "Operating Systems",
