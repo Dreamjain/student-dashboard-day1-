@@ -1,12 +1,13 @@
 FROM node:20-alpine
 
 ENV NODE_ENV=production
-WORKDIR /app
+WORKDIR /app/backend
 
-COPY package*.json ./
+COPY backend/package*.json ./
 RUN npm ci --omit=dev
 
-COPY . .
+COPY backend/ ./
+COPY docs/ /app/docs/
 
 USER node
 EXPOSE 5000
