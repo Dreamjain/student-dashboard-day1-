@@ -95,8 +95,12 @@ jobs:
 
       - name: Smoke test the Compose stack
         run: |
-          docker compose up -d --build
           trap 'docker compose down -v' EXIT
+          if ! docker compose up -d --build; then
+            docker compose ps -a
+            docker compose logs backend mongo frontend
+            exit 1
+          fi
           for attempt in {1..30}; do
             if curl --fail --silent http://127.0.0.1:5000/health/ready > /tmp/readiness.json; then
               cat /tmp/readiness.json
