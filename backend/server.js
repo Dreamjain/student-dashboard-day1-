@@ -134,8 +134,12 @@ app.get("/health/ready", async (_req, res) => {
 });
 
 app.get("/auth/csrf", (_req, res) => {
-  setPreAuthCsrfCookie(res);
-  res.json({ message: "CSRF token ready" });
+  const csrfToken = setPreAuthCsrfCookie(res);
+  res.setHeader("Cache-Control", "no-store");
+  res.json({
+    message: "CSRF token ready",
+    csrfToken
+  });
 });
 
 app.post("/auth/refresh", async (req, res, next) => {
