@@ -11,23 +11,26 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" }
 });
 
-const readCookie = (name) => {
-  const prefix = `${name}=`;
-  const match = document.cookie.split("; ").find((cookie) => cookie.startsWith(prefix));
-  return match ? decodeURIComponent(match.slice(prefix.length)) : "";
-};
+
+let csrfToken = "";
 
 const ensureCsrf = async () => {
-  if (!readCookie(CSRF_COOKIE)) {
-    await api.get("/auth/csrf");
+  const response = await api.get("/auth/csrf");
+  csrfToken = response.data?.csrfToken || "";
+
+  if (!csrfToken) {
+    throw new Error("CSRF token missing from /auth/csrf response");
   }
 };
 
 api.interceptors.request.use((config) => {
-  if (!/^(GET|HEAD|OPTIONS)$/i.test(config.method || "GET")) {
-    const token = readCookie(CSRF_COOKIE);
-    if (token) config.headers["X-CSRF-Token"] = token;
+  const method = (config.method || "get").toUpperCase();
+
+  if (!["GET", "HEAD", "OPTIONS"].includes(method) && csrfToken) {
+    config.headers = config.headers || {};
+    config.headers["X-CSRF-Token"] = csrfToken;
   }
+
   return config;
 });
 
